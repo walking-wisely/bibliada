@@ -1,0 +1,892 @@
+[
+  {
+    "reference": "Genesis 1:1",
+    "text": "In the beginning, God created the heavens and the earth.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Genesis 28:15",
+    "text": "Behold, I am with you, and will keep you, wherever you go, and will bring you again into this land. For I will not leave you, until I have done that which I have spoken of to you.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Exodus 14:14",
+    "text": "Yahweh will fight for you, and you shall be still.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Exodus 33:14",
+    "text": "He said, “My presence will go with you, and I will give you rest.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Deuteronomy 31:6",
+    "text": "Be strong and courageous. Don’t be afraid or scared of them; for Yahweh your God himself is who goes with you. He will not fail you nor forsake you.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Deuteronomy 31:8",
+    "text": "Yahweh himself is who goes before you. He will be with you. He will not fail you nor forsake you. Don’t be afraid. Don’t be discouraged.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Joshua 1:9",
+    "text": "Haven’t I commanded you? Be strong and courageous. Don’t be afraid. Don’t be dismayed, for Yahweh your God is with you wherever you go.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Joshua 24:15",
+    "text": "If it seems evil to you to serve Yahweh, choose today whom you will serve; whether the gods which your fathers served that were beyond the River, or the gods of the Amorites, in whose land you dwell; but as for me and my house, we will serve Yahweh.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ruth 1:16",
+    "text": "Ruth said, “Don’t urge me to leave you, and to return from following you, for where you go, I will go; and where you stay, I will stay. Your people will be my people, and your God my God.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Samuel 16:7",
+    "text": "But Yahweh said to Samuel, “Don’t look on his face, or on the height of his stature, because I have rejected him; for I don’t see as man sees. For man looks at the outward appearance, but Yahweh looks at the heart.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Chronicles 16:11",
+    "text": "Seek Yahweh and his strength. Seek his face forever more.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Chronicles 7:14",
+    "text": "if my people, who are called by my name, will humble themselves, pray, seek my face, and turn from their wicked ways; then I will hear from heaven, will forgive their sin, and will heal their land.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Nehemiah 8:10",
+    "text": "Then he said to them, “Go your way. Eat the fat, drink the sweet, and send portions to him for whom nothing is prepared, for today is holy to our Lord. Don’t be grieved, for the joy of Yahweh is your strength.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Job 42:2",
+    "text": "“I know that you can do all things, and that no purpose of yours can be restrained.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 1:1",
+    "text": "Blessed is the man who doesn’t walk in the counsel of the wicked, nor stand on the path of sinners, nor sit in the seat of scoffers;",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 1:2",
+    "text": "but his delight is in Yahweh’s law. On his law he meditates day and night.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 8:3",
+    "text": "When I consider your heavens, the work of your fingers, the moon and the stars, which you have ordained;",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 16:11",
+    "text": "You will show me the path of life. In your presence is fullness of joy. In your right hand there are pleasures forever more.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 18:2",
+    "text": "Yahweh is my rock, my fortress, and my deliverer; my God, my rock, in whom I take refuge; my shield, and the horn of my salvation, my high tower.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 19:1",
+    "text": "The heavens declare the glory of God. The expanse shows his handiwork.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 23:1",
+    "text": "Yahweh is my shepherd: I shall lack nothing.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 23:4",
+    "text": "Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me. Your rod and your staff, they comfort me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 27:1",
+    "text": "Yahweh is my light and my salvation. Whom shall I fear? Yahweh is the strength of my life. Of whom shall I be afraid?",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 30:5",
+    "text": "For his anger is but for a moment. His favor is for a lifetime. Weeping may stay for the night, but joy comes in the morning.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 32:8",
+    "text": "I will instruct you and teach you in the way which you shall go. I will counsel you with my eye on you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 34:8",
+    "text": "Oh taste and see that Yahweh is good. Blessed is the man who takes refuge in him.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 34:18",
+    "text": "Yahweh is near to those who have a broken heart, and saves those who have a crushed spirit.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 37:4",
+    "text": "Also delight yourself in Yahweh, and he will give you the desires of your heart.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 40:1",
+    "text": "I waited patiently for Yahweh. He turned to me, and heard my cry.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 42:1",
+    "text": "As the deer pants for the water brooks, so my soul pants after you, God.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 46:1",
+    "text": "God is our refuge and strength, a very present help in trouble.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 46:10",
+    "text": "“Be still, and know that I am God. I will be exalted among the nations. I will be exalted in the earth.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 51:10",
+    "text": "Create in me a clean heart, O God. Renew a right spirit within me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 55:22",
+    "text": "Cast your burden on Yahweh, and he will sustain you. He will never allow the righteous to be moved.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 62:1",
+    "text": "My soul rests in God alone. My salvation is from him.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 73:26",
+    "text": "My flesh and my heart fails, but God is the strength of my heart and my portion forever.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 86:15",
+    "text": "But you, Lord, are a merciful and gracious God, slow to anger, and abundant in loving kindness and truth.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 90:1",
+    "text": "Lord, you have been our dwelling place for all generations.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 91:1",
+    "text": "He who dwells in the secret place of the Most High will rest in the shadow of the Almighty.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 91:2",
+    "text": "I will say of Yahweh, “He is my refuge and my fortress; my God, in whom I trust.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 91:11",
+    "text": "For he will put his angels in charge of you, to guard you in all your ways.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 100:5",
+    "text": "For Yahweh is good. His loving kindness endures forever, his faithfulness to all generations.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 103:1",
+    "text": "Praise Yahweh, my soul! All that is within me, praise his holy name!",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 107:1",
+    "text": "Give thanks to Yahweh, for he is good, for his loving kindness endures forever.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 118:24",
+    "text": "This is the day that Yahweh has made. We will rejoice and be glad in it!",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 119:105",
+    "text": "Your word is a lamp to my feet, and a light for my path.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 121:1",
+    "text": "I will lift up my eyes to the hills. Where does my help come from?",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 126:5",
+    "text": "Those who sow in tears will reap in joy.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 133:1",
+    "text": "See how good and how pleasant it is for brothers to live together in unity!",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 139:14",
+    "text": "I will give thanks to you, for I am fearfully and wonderfully made. Your works are wonderful. My soul knows that very well.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 145:18",
+    "text": "Yahweh is near to all those who call on him, to all who call on him in truth.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Psalms 147:3",
+    "text": "He heals the broken in heart, and binds up their wounds.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 3:5",
+    "text": "Trust in Yahweh with all your heart, and don’t lean on your own understanding.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 3:6",
+    "text": "In all your ways acknowledge him, and he will make your paths straight.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 4:23",
+    "text": "Keep your heart with all diligence, for out of it is the wellspring of life.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 9:10",
+    "text": "The fear of Yahweh is the beginning of wisdom. The knowledge of the Holy One is understanding.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 11:25",
+    "text": "The liberal soul shall be made fat. He who waters shall be watered also himself.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 15:1",
+    "text": "A gentle answer turns away wrath, but a harsh word stirs up anger.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 16:3",
+    "text": "Commit your deeds to Yahweh, and your plans shall succeed.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 17:17",
+    "text": "A friend loves at all times; and a brother is born for adversity.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 17:22",
+    "text": "A cheerful heart makes good medicine, but a crushed spirit dries up the bones.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 18:10",
+    "text": "Yahweh’s name is a strong tower: the righteous run to him, and are safe.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 22:6",
+    "text": "Train up a child in the way he should go, and when he is old he will not depart from it.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 27:17",
+    "text": "Iron sharpens iron; so a man sharpens his friend’s countenance.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Proverbs 31:25",
+    "text": "Strength and dignity are her clothing. She laughs at the time to come.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ecclesiastes 3:1",
+    "text": "For everything there is a season, and a time for every purpose under heaven:",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ecclesiastes 4:12",
+    "text": "If a man prevails against one who is alone, two shall withstand him; and a threefold cord is not quickly broken.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Song of Solomon 8:7",
+    "text": "Many waters can’t quench love, neither can floods drown it. If a man would give all the wealth of his house for love, he would be utterly scorned.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 1:18",
+    "text": "“Come now, and let us reason together,” says Yahweh: “Though your sins be as scarlet, they shall be as white as snow. Though they be red like crimson, they shall be as wool.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 6:8",
+    "text": "I heard the Lord’s voice, saying, “Whom shall I send, and who will go for us?” Then I said, “Here I am. Send me!”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 26:3",
+    "text": "You will keep whoever’s mind is steadfast in perfect peace, because he trusts in you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 40:29",
+    "text": "He gives power to the weak. He increases the strength of him who has no might.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 40:31",
+    "text": "But those who wait for Yahweh will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 41:10",
+    "text": "Don’t you be afraid, for I am with you. Don’t be dismayed, for I am your God. I will strengthen you. Yes, I will help you. Yes, I will uphold you with the right hand of my righteousness.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 43:2",
+    "text": "When you pass through the waters, I will be with you; and through the rivers, they will not overflow you. When you walk through the fire, you will not be burned, and flame will not scorch you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 43:19",
+    "text": "Behold, I will do a new thing. It springs out now. Don’t you know it? I will even make a way in the wilderness, and rivers in the desert.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 53:5",
+    "text": "But he was pierced for our transgressions. He was crushed for our iniquities. The punishment that brought our peace was on him; and by his wounds we are healed.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 55:8",
+    "text": "“For my thoughts are not your thoughts, and your ways are not my ways,” says Yahweh.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 55:11",
+    "text": "so is my word that goes out of my mouth: it will not return to me void, but it will accomplish that which I please, and it will prosper in the thing I sent it to do.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 60:1",
+    "text": "“Arise, shine; for your light has come, and Yahweh’s glory has risen on you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Isaiah 64:8",
+    "text": "But now, Yahweh, you are our Father. We are the clay, and you our potter. We all are the work of your hand.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Jeremiah 29:11",
+    "text": "For I know the thoughts that I think toward you,” says Yahweh, “thoughts of peace, and not of evil, to give you hope and a future.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Jeremiah 29:13",
+    "text": "You shall seek me, and find me, when you search for me with all your heart.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Jeremiah 31:3",
+    "text": "Yahweh appeared of old to me, saying, “Yes, I have loved you with an everlasting love. Therefore I have drawn you with loving kindness.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Jeremiah 33:3",
+    "text": "‘Call to me, and I will answer you, and will show you great and difficult things, which you don’t know.’",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Lamentations 3:22",
+    "text": "It is because of Yahweh’s loving kindnesses that we are not consumed, because his compassion doesn’t fail.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ezekiel 36:26",
+    "text": "I will also give you a new heart, and I will put a new spirit within you. I will take away the stony heart out of your flesh, and I will give you a heart of flesh.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Daniel 3:17",
+    "text": "If it happens, our God whom we serve is able to deliver us from the burning fiery furnace; and he will deliver us out of your hand, O king.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Micah 6:8",
+    "text": "He has shown you, O man, what is good. What does Yahweh require of you, but to act justly, to love mercy, and to walk humbly with your God?",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Habakkuk 3:19",
+    "text": "Yahweh, the Lord, is my strength. He makes my feet like deer’s feet, and enables me to go in high places. For the music director, on my stringed instruments.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Zephaniah 3:17",
+    "text": "Yahweh, your God, is among you, a mighty one who will save. He will rejoice over you with joy. He will calm you in his love. He will rejoice over you with singing.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Malachi 3:10",
+    "text": "Bring the whole tithe into the storehouse, that there may be food in my house, and test me now in this,” says Yahweh of Armies, “if I will not open you the windows of heaven, and pour you out a blessing, that there will not be room enough for.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 5:4",
+    "text": "Blessed are those who mourn, for they shall be comforted.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 5:14",
+    "text": "You are the light of the world. A city located on a hill can’t be hidden.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 5:16",
+    "text": "Even so, let your light shine before men; that they may see your good works, and glorify your Father who is in heaven.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 6:33",
+    "text": "But seek first God’s Kingdom, and his righteousness; and all these things will be given to you as well.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 7:7",
+    "text": "“Ask, and it will be given you. Seek, and you will find. Knock, and it will be opened for you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 11:28",
+    "text": "“Come to me, all you who labor and are heavily burdened, and I will give you rest.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 11:29",
+    "text": "Take my yoke upon you, and learn from me, for I am gentle and humble in heart; and you will find rest for your souls.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 18:20",
+    "text": "For where two or three are gathered together in my name, there I am in the middle of them.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 19:26",
+    "text": "Looking at them, Jesus said, “With men this is impossible, but with God all things are possible.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 28:19",
+    "text": "Go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Matthew 28:20",
+    "text": "teaching them to observe all things that I commanded you. Behold, I am with you always, even to the end of the age.” Amen.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Mark 9:23",
+    "text": "Jesus said to him, “If you can believe, all things are possible to him who believes.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Mark 11:24",
+    "text": "Therefore I tell you, all things whatever you pray and ask for, believe that you have received them, and you shall have them.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Mark 12:30",
+    "text": "you shall love the Lord your God with all your heart, and with all your soul, and with all your mind, and with all your strength.’ This is the first commandment.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Luke 1:37",
+    "text": "For nothing spoken by God is impossible.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Luke 6:38",
+    "text": "“Give, and it will be given to you: good measure, pressed down, shaken together, and running over, will be given to you. For with the same measure you measure it will be measured back to you.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Luke 12:6",
+    "text": "“Aren’t five sparrows sold for two assaria coins? Not one of them is forgotten by God.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Luke 18:27",
+    "text": "But he said, “The things which are impossible with men are possible with God.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 1:1",
+    "text": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 3:16",
+    "text": "For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 8:12",
+    "text": "Again, therefore, Jesus spoke to them, saying, “I am the light of the world. He who follows me will not walk in the darkness, but will have the light of life.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 8:32",
+    "text": "You will know the truth, and the truth will make you free.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 10:10",
+    "text": "The thief only comes to steal, kill, and destroy. I came that they may have life, and may have it abundantly.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 11:25",
+    "text": "Jesus said to her, “I am the resurrection and the life. He who believes in me will still live, even if he dies.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 13:34",
+    "text": "A new commandment I give to you, that you love one another. Just as I have loved you, you also love one another.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 14:1",
+    "text": "“Don’t let your heart be troubled. Believe in God. Believe also in me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 14:6",
+    "text": "Jesus said to him, “I am the way, the truth, and the life. No one comes to the Father, except through me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 14:27",
+    "text": "Peace I leave with you. My peace I give to you; not as the world gives, give I to you. Don’t let your heart be troubled, neither let it be fearful.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 15:5",
+    "text": "I am the vine. You are the branches. He who remains in me, and I in him, the same bears much fruit, for apart from me you can do nothing.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 15:13",
+    "text": "Greater love has no one than this, that someone lay down his life for his friends.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 16:33",
+    "text": "I have told you these things, that in me you may have peace. In the world you have oppression; but cheer up! I have overcome the world.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "John 20:29",
+    "text": "Jesus said to him, “Because you have seen me, you have believed. Blessed are those who have not seen, and have believed.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Acts 1:8",
+    "text": "But you will receive power when the Holy Spirit has come upon you. You will be witnesses to me in Jerusalem, in all Judea and Samaria, and to the uttermost parts of the earth.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Acts 16:31",
+    "text": "They said, “Believe in the Lord Jesus Christ, and you will be saved, you and your household.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 1:16",
+    "text": "For I am not ashamed of the Good News of Christ, because it is the power of God for salvation for everyone who believes; for the Jew first, and also for the Greek.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 5:8",
+    "text": "But God commends his own love toward us, in that while we were yet sinners, Christ died for us.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 6:23",
+    "text": "For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 8:1",
+    "text": "There is therefore now no condemnation to those who are in Christ Jesus, who don’t walk according to the flesh, but according to the Spirit.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 8:18",
+    "text": "For I consider that the sufferings of this present time are not worthy to be compared with the glory which will be revealed toward us.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 8:28",
+    "text": "We know that all things work together for good for those who love God, to those who are called according to his purpose.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 8:31",
+    "text": "What then shall we say about these things? If God is for us, who can be against us?",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 8:39",
+    "text": "nor height, nor depth, nor any other created thing, will be able to separate us from God’s love, which is in Christ Jesus our Lord.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 10:9",
+    "text": "that if you will confess with your mouth that Jesus is Lord, and believe in your heart that God raised him from the dead, you will be saved.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 12:2",
+    "text": "Don’t be conformed to this world, but be transformed by the renewing of your mind, so that you may prove what is the good, well-pleasing, and perfect will of God.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Romans 15:13",
+    "text": "Now may the God of hope fill you with all joy and peace in believing, that you may abound in hope, in the power of the Holy Spirit.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Corinthians 10:13",
+    "text": "No temptation has taken you except what is common to man. God is faithful, who will not allow you to be tempted above what you are able, but will with the temptation also make the way of escape, that you may be able to endure it.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Corinthians 13:4",
+    "text": "Love is patient and is kind; love doesn’t envy. Love doesn’t brag, is not proud,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Corinthians 13:13",
+    "text": "But now faith, hope, and love remain—these three. The greatest of these is love.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Corinthians 15:57",
+    "text": "But thanks be to God, who gives us the victory through our Lord Jesus Christ.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Corinthians 16:14",
+    "text": "Let all that you do be done in love.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Corinthians 1:3",
+    "text": "Blessed be the God and Father of our Lord Jesus Christ, the Father of mercies and God of all comfort;",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Corinthians 4:16",
+    "text": "Therefore we don’t faint, but though our outward man is decaying, yet our inward man is renewed day by day.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Corinthians 5:7",
+    "text": "for we walk by faith, not by sight.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Corinthians 5:17",
+    "text": "Therefore if anyone is in Christ, he is a new creation. The old things have passed away. Behold, all things have become new.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Corinthians 9:8",
+    "text": "And God is able to make all grace abound to you, that you, always having all sufficiency in everything, may abound to every good work.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Corinthians 12:9",
+    "text": "He has said to me, “My grace is sufficient for you, for my power is made perfect in weakness.” Most gladly therefore I will rather glory in my weaknesses, that the power of Christ may rest on me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Galatians 5:22",
+    "text": "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faith,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Galatians 6:9",
+    "text": "Let us not be weary in doing good, for we will reap in due season, if we don’t give up.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ephesians 2:8",
+    "text": "for by grace you have been saved through faith, and that not of yourselves; it is the gift of God,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ephesians 3:20",
+    "text": "Now to him who is able to do exceedingly abundantly above all that we ask or think, according to the power that works in us,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ephesians 4:32",
+    "text": "And be kind to one another, tender hearted, forgiving each other, just as God also in Christ forgave you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Ephesians 6:10",
+    "text": "Finally, be strong in the Lord, and in the strength of his might.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Philippians 1:6",
+    "text": "being confident of this very thing, that he who began a good work in you will complete it until the day of Jesus Christ.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Philippians 4:6",
+    "text": "In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Philippians 4:7",
+    "text": "And the peace of God, which surpasses all understanding, will guard your hearts and your thoughts in Christ Jesus.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Philippians 4:8",
+    "text": "Finally, brothers, whatever things are true, whatever things are honorable, whatever things are just, whatever things are pure, whatever things are lovely, whatever things are of good report; if there is any virtue, and if there is any praise, think about these things.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Philippians 4:13",
+    "text": "I can do all things through Christ, who strengthens me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Colossians 3:2",
+    "text": "Set your mind on the things that are above, not on the things that are on the earth.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Thessalonians 5:16",
+    "text": "Rejoice always.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Thessalonians 5:18",
+    "text": "In everything give thanks, for this is the will of God in Christ Jesus toward you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "2 Timothy 1:7",
+    "text": "For God didn’t give us a spirit of fear, but of power, love, and self-control.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Hebrews 4:12",
+    "text": "For the word of God is living and active, and sharper than any two-edged sword, piercing even to the dividing of soul and spirit, of both joints and marrow, and is able to discern the thoughts and intentions of the heart.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Hebrews 11:1",
+    "text": "Now faith is assurance of things hoped for, proof of things not seen.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Hebrews 12:1",
+    "text": "Therefore let us also, seeing we are surrounded by so great a cloud of witnesses, lay aside every weight and the sin which so easily entangles us, and let us run with perseverance the race that is set before us,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Hebrews 13:5",
+    "text": "Be free from the love of money, content with such things as you have, for he has said, “I will in no way leave you, neither will I in any way forsake you.”",
+    "translation": "WEB"
+  },
+  {
+    "reference": "James 1:2",
+    "text": "Count it all joy, my brothers, when you fall into various temptations,",
+    "translation": "WEB"
+  },
+  {
+    "reference": "James 1:5",
+    "text": "But if any of you lacks wisdom, let him ask of God, who gives to all liberally and without reproach; and it will be given to him.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "James 1:17",
+    "text": "Every good gift and every perfect gift is from above, coming down from the Father of lights, with whom can be no variation, nor turning shadow.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "James 4:8",
+    "text": "Draw near to God, and he will draw near to you. Cleanse your hands, you sinners; and purify your hearts, you double-minded.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 Peter 5:7",
+    "text": "casting all your worries on him, because he cares for you.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 John 1:9",
+    "text": "If we confess our sins, he is faithful and righteous to forgive us the sins, and to cleanse us from all unrighteousness.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 John 4:8",
+    "text": "He who doesn’t love doesn’t know God, for God is love.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 John 4:18",
+    "text": "There is no fear in love; but perfect love casts out fear, because fear has punishment. He who fears is not made perfect in love.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "1 John 5:14",
+    "text": "This is the boldness which we have toward him, that, if we ask anything according to his will, he listens to us.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Revelation 3:20",
+    "text": "Behold, I stand at the door and knock. If anyone hears my voice and opens the door, then I will come in to him, and will dine with him, and he with me.",
+    "translation": "WEB"
+  },
+  {
+    "reference": "Revelation 21:4",
+    "text": "He will wipe away every tear from their eyes. Death will be no more; neither will there be mourning, nor crying, nor pain, any more. The first things have passed away.”",
+    "translation": "WEB"
+  }
+]
