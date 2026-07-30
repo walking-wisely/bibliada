@@ -12,14 +12,14 @@ import WidgetKit
 /// sentinel entity (`useAppSettings`) represents "use whatever theme is currently
 /// set in the main app's settings" and is the default selection.
 struct ThemeEntity: AppEntity {
-    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Gradient Theme"
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Colours"
     static let defaultQuery = ThemeEntityQuery()
 
     /// Either a `GradientTheme.presets` preset name, or `Self.useAppSettingsID`.
     let id: String
 
     var displayRepresentation: DisplayRepresentation {
-        let title = id == Self.useAppSettingsID ? "Use App Settings" : id
+        let title = id == Self.useAppSettingsID ? "Match the app" : id
         return DisplayRepresentation(title: "\(title)")
     }
 
@@ -76,10 +76,10 @@ enum FrequencyOption: String, AppEnum {
     case every12Hours
     case daily
 
-    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Update Frequency"
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "How often the verse changes"
 
     static let caseDisplayRepresentations: [FrequencyOption: DisplayRepresentation] = [
-        .useAppSettings: "Use App Settings",
+        .useAppSettings: "Match the app",
         .hourly: "Every hour",
         .every3Hours: "Every 3 hours",
         .every6Hours: "Every 6 hours",
@@ -105,21 +105,23 @@ enum FrequencyOption: String, AppEnum {
 
 /// Per-widget-instance configuration, edited via the "Edit Widget" UI.
 struct VerseWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static let title: LocalizedStringResource = "Verse Widget Settings"
+    static let title: LocalizedStringResource = "Verse widget options"
     static let description = IntentDescription(
-        "Choose the gradient theme, update cadence, and whether to show the verse reference for this widget."
+        "Choose the colours, how often the verse changes, and whether the reference is shown — for this widget only."
     )
 
     @Parameter(title: "Theme", default: ThemeEntity.useAppSettings)
     var theme: ThemeEntity
 
-    @Parameter(title: "Update Frequency", default: .useAppSettings)
+    @Parameter(title: "Change verse every", default: .useAppSettings)
     var frequency: FrequencyOption
 
-    @Parameter(title: "Show Reference", default: true)
+    @Parameter(title: "Show verse reference", default: true)
     var showReference: Bool
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Show a verse styled with \(\.$theme), updating \(\.$frequency), reference shown: \(\.$showReference)")
+        Summary("Show a verse in \(\.$theme), changing \(\.$frequency)") {
+            \.$showReference
+        }
     }
 }

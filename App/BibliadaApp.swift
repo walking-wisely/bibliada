@@ -46,7 +46,7 @@ private struct MenuBarContentView: View {
             }
             .keyboardShortcut("n", modifiers: [.command])
 
-            Toggle("Show on desktop", isOn: overlayEnabledBinding)
+            Toggle("Show verse on desktop", isOn: overlayEnabledBinding)
 
             // Also on the card's own right-click menu, but that one goes away
             // while the card is locked — this is the way back.

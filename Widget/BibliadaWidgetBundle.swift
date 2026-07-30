@@ -25,7 +25,7 @@ struct VerseWidget: Widget {
                 }
         }
         .configurationDisplayName("Bible Verse")
-        .description("Shows a random Bible verse on a gradient card, with a theme and update cadence you can customize per widget.")
+        .description("A random Bible verse on a gradient card. Each widget can have its own colours, its own schedule for changing the verse, and its own choice about showing the reference.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
         .containerBackgroundRemovable(false)
     }
