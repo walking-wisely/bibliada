@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// The Settings window, opened from the menu-bar extra. Four tabs: Appearance,
-/// Size & Position, Updates, and General. Every control writes straight through
+/// Size & Position, Verse changes, and General. Every control writes straight through
 /// to `SettingsStore.shared.settings`, so changes persist and (where relevant)
 /// apply live to an already-visible overlay via `AppState`'s settings poller.
 struct SettingsView: View {
@@ -17,7 +17,7 @@ struct SettingsView: View {
                 .tabItem { Label("Size & Position", systemImage: "aspectratio") }
 
             UpdatesSettingsTab(settings: settingsBinding)
-                .tabItem { Label("Updates", systemImage: "clock.arrow.circlepath") }
+                .tabItem { Label("Verse changes", systemImage: "clock.arrow.circlepath") }
 
             GeneralSettingsTab(settings: settingsBinding)
                 .tabItem { Label("General", systemImage: "gearshape") }
@@ -78,7 +78,7 @@ private struct AppearanceSettingsTab: View {
                     }
                 }
 
-                Section("Gradient") {
+                Section {
                     ColorPicker(
                         "Start color",
                         selection: Binding(
@@ -95,10 +95,16 @@ private struct AppearanceSettingsTab: View {
                         ),
                         supportsOpacity: false
                     )
-                    SliderSettingRow(label: "Angle", value: $settings.theme.angle, range: 0...360, step: 1, suffix: "°")
+                    SliderSettingRow(label: "Direction", value: $settings.theme.angle, range: 0...360, step: 1, suffix: "°")
+                } header: {
+                    Text("Gradient")
+                } footer: {
+                    Text("Direction is the way the colours run: 0° goes from the top down, 90° from the left across.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
-                Section("Typeface") {
+                Section("Text") {
                     FontPicker(selection: $settings.font)
                     // Lives here rather than under Gradient: it's the colour of
                     // the text, and the thing it has to stay legible against is
@@ -141,7 +147,7 @@ private struct AppearanceSettingsTab: View {
     /// than being cut off by it.
     private var preview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Live preview")
+            Text("Style preview")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
             VerseCardView(verse: previewVerse, settings: settings)
@@ -234,25 +240,35 @@ private struct SizePositionSettingsTab: View {
 
     private static let positionRange: ClosedRange<Double> = -20000...20000
 
-    /// The biggest card any attached display can actually show, measured across
-    /// all of them rather than just the main one — the card may well live on the
-    /// external monitor, and that one may be the larger.
-    ///
-    /// The overlay clamps its own size to the screen it's on (see
-    /// `OverlayWindowController.clampedFrame`) and writes the clamped frame back
-    /// to settings, so a field that accepted more than this would show a number
-    /// for a moment and then have it snapped away underneath. Matching the two
-    /// means what you type is what you get.
-    @State private var maxCardSize: CGSize = SizePositionSettingsTab.largestScreenSize()
+    /// Bumped when the display arrangement changes. Nothing reads it — mutating
+    /// state is what re-runs the body, which re-reads the screens below.
+    @State private var screenChangeTick = 0
 
-    /// The grid is drawn for the main display only — widgets have their own grid
-    /// per screen, and a picker showing several at once would be more confusing
-    /// than the numbers it replaces.
+    /// The display the card is on, chosen the same way
+    /// `OverlayWindowController.clampedFrame` chooses it.
     ///
-    /// Read fresh each time the body runs, which the screen-parameters
-    /// notification that maintains `maxCardSize` already triggers, so the
-    /// miniature follows a resolution or display change.
-    private var grid: WidgetGrid? { WidgetGrid(screen: NSScreen.main) }
+    /// Everything screen-derived on this tab hangs off this one answer, because
+    /// the two that used to disagree with it were both wrong in practice. The
+    /// size fields took their maximum from the *largest* attached display while
+    /// the panel clamps to the card's own, so on a laptop beside a big external
+    /// monitor a width the field accepted was silently snapped down — the exact
+    /// drift the field's limits existed to prevent. And the grid picker was built
+    /// from the *main* display, so with the card on a secondary screen its cells
+    /// described slots that were nowhere near where the card would land.
+    private var cardScreen: NSScreen? {
+        let frame = settings.overlayFrame
+        return NSScreen.screens.first { $0.frame.intersects(frame) }
+            ?? NSScreen.main
+            ?? NSScreen.screens.first
+    }
+
+    /// The usable area of that display — menu bar and Dock excluded, matching
+    /// what the panel clamps against, so what's typed here is what's kept.
+    private var maxCardSize: CGSize {
+        cardScreen?.visibleFrame.size ?? CGSize(width: Self.fallbackMaxSide, height: Self.fallbackMaxSide)
+    }
+
+    private var grid: WidgetGrid? { WidgetGrid(screen: cardScreen) }
 
     private var widthRange: ClosedRange<Double> {
         Self.minSide...max(Self.minSide, maxCardSize.width)
@@ -270,7 +286,13 @@ private struct SizePositionSettingsTab: View {
                 } header: {
                     Text("Place on the widget grid")
                 } footer: {
-                    Text("Each cell is one small widget. Drag across cells to set the card's size and position at once — it lands exactly where a widget of that shape would, so it lines up with the ones already there. The outline shows where the card is now.")
+                    Text("Each cell is one widget slot on the display the card is on. Drag across cells to set the card's size and position in one go, so it lines up with the widgets already sitting there. The outline is where the card is now\(settings.overlayEnabled ? "" : " — switch on “Show verse on desktop” in General to actually see it").")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Section {
+                    Text("Widget slot sizes are only known for macOS 26 and later, so there's no grid to line up with on this version. Set the size and position with the fields below.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -296,7 +318,7 @@ private struct SizePositionSettingsTab: View {
             } header: {
                 Text("Size")
             } footer: {
-                Text("Sizes are in pixels. Type one and press Return, or click the arrows to nudge it a pixel at a time. The card can't be bigger than the screen it sits on, so the maximum is the largest display you have connected right now.")
+                Text("Type a size and press Return, or use the arrows to nudge it. Sizes are in points, the same units as the position below — on a Retina display one point covers two pixels. The card is kept inside the usable area of the display it's on, ignoring the menu bar and the Dock, and never goes below \(Int(Self.minSide)) in either direction.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -326,13 +348,13 @@ private struct SizePositionSettingsTab: View {
             } header: {
                 Text("Position")
             } footer: {
-                Text("Where the card's bottom-left corner sits. X counts pixels from the left edge of the screen, and Y counts up from the bottom edge — so a bigger Y moves the card higher. Values beyond the screen's own size put the card on another display; anything left completely off-screen is pulled back onto the nearest one.")
+                Text("Where the card's bottom-left corner sits, counted from the bottom-left of your main display: a bigger X moves it right, a bigger Y moves it up. The card is always kept fully on one display, so a value that would push it past an edge is pulled back in. To move it to another display, unlock it and drag it there.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Text("You can also just drag the overlay to move it, or drag its edges to resize to any rectangle — wherever you leave it is written back into these fields.")
+                Text("While the card is unlocked you can also drag it to move it, or drag its edges to resize it, and wherever you leave it is written back into these fields. It starts out locked — unlock it in General, from the menu-bar menu, or by right-clicking the card. The grid and the fields here work either way.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -340,23 +362,10 @@ private struct SizePositionSettingsTab: View {
         }
         .formStyle(.grouped)
         // Plugging in or unplugging a display changes what the card can fit
-        // inside, so the accepted maximum follows along instead of going stale
-        // for as long as the window stays open.
+        // inside and where the widget slots fall, so the screen-derived limits
+        // are re-read instead of going stale while the window stays open.
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
-            maxCardSize = Self.largestScreenSize()
-        }
-        .onAppear { maxCardSize = Self.largestScreenSize() }
-    }
-
-    /// The largest usable area among the attached displays, per axis — menu bar
-    /// and Dock excluded, since the overlay is kept clear of both.
-    private static func largestScreenSize() -> CGSize {
-        let sizes: [CGSize] = NSScreen.screens.map { $0.visibleFrame.size }
-        guard let first = sizes.first else {
-            return CGSize(width: fallbackMaxSide, height: fallbackMaxSide)
-        }
-        return sizes.dropFirst().reduce(first) { widest, size in
-            CGSize(width: max(widest.width, size.width), height: max(widest.height, size.height))
+            screenChangeTick += 1
         }
     }
 }
@@ -799,7 +808,7 @@ private struct WidgetGridPicker: View {
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .accessibilityLabel("Widget grid")
-            .accessibilityHint("Drag across cells to size and place the card")
+            .accessibilityHint("Drag across cells to size and place the card. The Width, Height, X and Y fields below do the same thing without dragging.")
     }
 
     // MARK: Drawing
@@ -890,9 +899,9 @@ private struct UpdatesSettingsTab: View {
                 )
 
             } header: {
-                Text("Refresh every")
+                Text("Change the verse every")
             } footer: {
-                Text("The desktop overlay follows this exactly, down to the minute, because it keeps its own timer — which is why you can set any hours and minutes you like.\n\nThe widget in Notification Center can't be that precise: macOS decides when widgets are allowed to refresh, and only allows each one roughly 40–70 refreshes a day. So the widget uses the closest schedule it can actually keep (currently \(settings.widgetFrequency.displayName.lowercased())), and anything under an hour becomes hourly there.")
+                Text("Anything from 1 minute to 24 hours in total. The verse on your desktop changes exactly this often, because the app keeps its own timer.\n\nWidgets can't be that precise: macOS decides when a widget is allowed to refresh, so a widget rounds this down to one of a few fixed schedules — every hour, every 3, 6 or 12 hours, or once a day. Anything under 3 hours becomes hourly. Right now widgets change \(settings.widgetFrequency.displayName.lowercased()). A widget you've given its own schedule keeps that instead.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -1037,19 +1046,32 @@ private struct GeneralSettingsTab: View {
 
                 Toggle("Lock position", isOn: $settings.positionLocked)
                     .disabled(!settings.overlayEnabled)
-                if settings.positionLocked {
-                    Text("The card stays where it is and clicks pass through it, so it can't be moved or resized by accident. That also means right-clicking it does nothing — unlock it here or from the menu bar.")
+                if !settings.overlayEnabled {
+                    Text("Switch on “Show verse on desktop” to place and lock the card.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if settings.positionLocked {
+                    Text("The card stays where it is and clicks pass through it, so it can't be moved or resized by accident. That also means right-clicking it does nothing — unlock it here or from the menu bar. Size and position can still be changed under Size & Position.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                Toggle("Show verse reference", isOn: $settings.showReference)
+                Toggle("Show verse reference on the desktop card", isOn: $settings.showReference)
+                Text("Each widget has its own setting for the reference, in the widget's own options.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Text("Verses are the World English Bible, fetched from bible-api.com. Without a connection Bibliada picks from the verses built into the app instead, so it always has something to show.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             if !settingsStore.isShared {
                 Section {
                     Label(
-                        "No Apple Developer Team ID is configured, so the app and widget can't share settings through an App Group. The widget will show its own defaults instead of the theme/size you configure here. Set BIBLIADA_TEAM_ID before building to enable sharing.",
+                        "Widgets can't read your settings on this copy of Bibliada, so they'll show the built-in look instead of your colours, font and card style. The verse on your desktop is unaffected. Installing a signed copy of Bibliada fixes it.",
                         systemImage: "exclamationmark.triangle.fill"
                     )
                     .font(.caption)
