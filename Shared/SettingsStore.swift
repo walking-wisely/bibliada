@@ -135,6 +135,34 @@ final class SettingsStore {
 
     private static let key = "appSettings"
     private static let suiteName = "group.com.bibliada.shared"
+    private static let probeKey = "sharedDomainProbe"
+
+    /// Whether the shared domain can actually be written to and read back.
+    ///
+    /// Neither obvious test works here. `UserDefaults(suiteName:)` returns a
+    /// usable object for any string — a suite name is just a domain, entitlement
+    /// or not — and on macOS
+    /// `containerURL(forSecurityApplicationGroupIdentifier:)` likewise returns a
+    /// path for a process that isn't sandboxed. Both are therefore always true,
+    /// which is why `isShared` was always true and the app's "widgets can't see
+    /// your settings" warning never appeared, including in the builds it was
+    /// written for.
+    ///
+    /// A round trip is the honest test: where the App Group is denied — a
+    /// sandboxed build without the entitlement — the write is dropped and the
+    /// read comes back empty.
+    ///
+    /// It tests this process only. It cannot tell whether the widget, which is
+    /// sandboxed on its own terms, can reach the same domain, so a true result
+    /// means "nothing is stopping us from our side" rather than a guarantee that
+    /// sharing works end to end.
+    private static func isUsable(_ defaults: UserDefaults) -> Bool {
+        let token = "\(ProcessInfo.processInfo.processIdentifier)-\(Date().timeIntervalSince1970)"
+        defaults.set(token, forKey: probeKey)
+        let readBack = defaults.string(forKey: probeKey)
+        defaults.removeObject(forKey: probeKey)
+        return readBack == token
+    }
 
     private let defaults: UserDefaults
 
@@ -148,7 +176,7 @@ final class SettingsStore {
     }
 
     private init() {
-        if let shared = UserDefaults(suiteName: Self.suiteName) {
+        if let shared = UserDefaults(suiteName: Self.suiteName), Self.isUsable(shared) {
             defaults = shared
             isShared = true
         } else {
