@@ -6,6 +6,10 @@ Bibliada.xcodeproj/
 DerivedData/
 build/
 
+# Release pipeline output (scripts/release.sh)
+.build-release/
+dist/
+
 # Xcode user state
 *.xcuserstate
 xcuserdata/

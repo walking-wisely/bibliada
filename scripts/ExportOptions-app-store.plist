@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Export options for the Mac App Store build of Bibliada.
+
+  Used by scripts/release.sh (`--variant app-store`) as a TEMPLATE: the script
+  copies it and replaces the teamID placeholder with $BIBLIADA_TEAM_ID.
+
+  IMPORTANT differences from the Developer ID variant — these are properties of
+  the App Store, not of this file, and the project must satisfy them before this
+  export can succeed:
+
+    * App Sandbox is MANDATORY for the Mac App Store. project.yml currently sets
+      ENABLE_APP_SANDBOX: NO on the Bibliada app target (only the widget is
+      sandboxed). The app-store variant cannot be accepted until that is YES.
+    * App Group identifiers. The Team-ID-prefixed form,
+      $(TeamIdentifierPrefix)group.com.bibliada.shared, is self-authorizing and
+      is the ONLY form unconditionally valid on both channels — prefer it in
+      both variants so app and widget share one container and users switching
+      between the store build and the direct download keep their settings.
+      The bare group.com.bibliada.shared form is NOT Developer-ID-specific: it
+      requires portal registration AND authorization by an embedded
+      provisioning profile on either channel. (Since macOS 15 Sequoia,
+      ~/Library/Group Containers is SIP-protected and access requires one of:
+      Mac App Store delivery, a Team-ID prefix, or profile authorization.)
+      With the same prefixed identifier in both variants the entitlements
+      files still differ on the sandbox flag; release.sh lets you point at
+      them with BIBLIADA_APP_ENTITLEMENTS / BIBLIADA_WIDGET_ENTITLEMENTS.
+      NOT YET VERIFIED against Apple documentation: that App Store ingestion
+      accepts a Team-ID-prefixed group. Confirm on the first upload; if it is
+      rejected, fall back to the bare form for the store variant and add a
+      first-launch settings migration.
+    * Mac App Store builds are notarized by App Review as part of ingestion —
+      do NOT run notarytool on the exported .pkg. release.sh skips the whole
+      notarize/staple/dmg stage for this variant.
+
+  Key reference: `xcodebuild -help`, section "Available keys for
+  -exportOptionsPlist" (Xcode 26.6).
+-->
+<plist version="1.0">
+<dict>
+	<!-- Xcode 26 name for the App Store method. The old "app-store" spelling
+	     still works but is documented as deprecated. -->
+	<key>method</key>
+	<string>app-store-connect</string>
+
+	<!-- "export" writes a signed Bibliada.pkg to disk so it can be inspected,
+	     archived and uploaded deliberately. Change to "upload" to have
+	     xcodebuild push straight to App Store Connect (release.sh does this for
+	     you when you pass --upload, by overriding this key on a temp copy). -->
+	<key>destination</key>
+	<string>export</string>
+
+	<!-- Placeholder. release.sh replaces this with $BIBLIADA_TEAM_ID. -->
+	<key>teamID</key>
+	<string>__BIBLIADA_TEAM_ID__</string>
+
+	<!-- Automatic signing creates/downloads the Mac App Distribution profiles
+	     for com.bibliada.Bibliada AND com.bibliada.Bibliada.Widget. The widget
+	     needs its own App Store profile; a missing one is the single most common
+	     cause of "Provisioning profile ... doesn't include signing certificate"
+	     at export time. -->
+	<key>signingStyle</key>
+	<string>automatic</string>
+
+	<!-- .app signing identity for the store. -->
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+
+	<!-- .pkg installer signing identity for the store (distinct certificate
+	     from the one above; both must be in the keychain). -->
+	<key>installerSigningCertificate</key>
+	<string>3rd Party Mac Developer Installer</string>
+
+	<!-- Keep OUR version/build numbers. release.sh passes MARKETING_VERSION and
+	     CURRENT_PROJECT_VERSION on the xcodebuild command line and records them
+	     in the artifact name; letting Xcode rewrite the build number here would
+	     desynchronize the two. -->
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+
+	<!-- Upload symbols so App Store Connect can symbolicate crash reports. -->
+	<key>uploadSymbols</key>
+	<true/>
+
+	<key>stripSwiftSymbols</key>
+	<true/>
+</dict>
+</plist>

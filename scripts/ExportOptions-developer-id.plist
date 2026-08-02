@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Export options for the notarized, direct-download (outside the Mac App Store)
+  build of Bibliada.
+
+  Used by scripts/release.sh as a TEMPLATE: the script copies this file to a
+  temporary location and replaces the teamID placeholder with $BIBLIADA_TEAM_ID
+  (via `plutil -replace`, so the XML is never hand-edited with sed). Do not run
+  `xcodebuild -exportArchive` against this file directly unless you first fill
+  in teamID yourself.
+
+  Key reference: `xcodebuild -help`, section "Available keys for
+  -exportOptionsPlist" (Xcode 26.6).
+-->
+<plist version="1.0">
+<dict>
+	<!-- "developer-id" produces a Developer ID Application-signed .app suitable
+	     for notarization and direct download. (In Xcode 26 the App Store value
+	     was renamed to "app-store-connect"; "developer-id" is unchanged.) -->
+	<key>method</key>
+	<string>developer-id</string>
+
+	<!-- Write the export to disk rather than uploading it to Apple. For
+	     developer-id, "upload" would mean "notarize via Xcode", which we do
+	     ourselves with notarytool so that we control waiting, logging and
+	     stapling. -->
+	<key>destination</key>
+	<string>export</string>
+
+	<!-- Placeholder. release.sh replaces this with $BIBLIADA_TEAM_ID. -->
+	<key>teamID</key>
+	<string>__BIBLIADA_TEAM_ID__</string>
+
+	<!-- Automatic signing: let Xcode pick/renew the Developer ID Application
+	     certificate and the (Developer ID) provisioning profile that grants the
+	     group.com.bibliada.shared App Group to BOTH the app and the embedded
+	     BibliadaWidget extension. This matches project.yml's
+	     CODE_SIGN_STYLE: Automatic. Requires either an Xcode account or the
+	     -authenticationKey* flags plus -allowProvisioningUpdates, both of which
+	     release.sh passes. -->
+	<key>signingStyle</key>
+	<string>automatic</string>
+
+	<!-- Newest installed "Developer ID Application" certificate. -->
+	<key>signingCertificate</key>
+	<string>Developer ID Application</string>
+
+	<!-- Bibliada ships no On Demand Resources; keep the export lean and
+	     deterministic. -->
+	<key>stripSwiftSymbols</key>
+	<true/>
+
+	<!-- macOS app: no device thinning. -->
+	<key>thinning</key>
+	<string>&lt;none&gt;</string>
+</dict>
+</plist>
