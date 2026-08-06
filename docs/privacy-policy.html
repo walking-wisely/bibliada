@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bibliada — Privacy Policy</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 640px;
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+    line-height: 1.6;
+    color: #1c1c1e;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #f2f2f7; background: #000; }
+    a { color: #6fb3ff; }
+  }
+  h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .updated { color: #6e6e73; margin-top: 0; font-size: 0.9rem; }
+  @media (prefers-color-scheme: dark) { .updated { color: #9b9ba1; } }
+  h2 { font-size: 1.15rem; margin-top: 2.25rem; }
+  footer { margin-top: 3rem; font-size: 0.85rem; color: #8e8e93; }
+  a.back { display: inline-block; margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+  <a class="back" href="index.html">&larr; Bibliada</a>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated August 6, 2026</p>
+
+  <h2>Short version</h2>
+  <p>
+    Bibliada does not collect any data about you. There is no account, no analytics,
+    no advertising, and no third-party SDK of any kind in the app.
+  </p>
+
+  <h2>What the app stores, and where</h2>
+  <p>
+    Bibliada saves your settings (such as which verse is currently shown, and your
+    display preferences) locally on your Mac, in a storage container shared between
+    the app and its widget. This data never leaves your device and is never sent to
+    us — we have no server and no way to receive it even if we wanted to.
+  </p>
+
+  <h2>The one network request the app makes</h2>
+  <p>
+    To display Bible verses, Bibliada fetches text from
+    <a href="https://bible-api.com">bible-api.com</a>, a free public API, over HTTPS.
+    Each request contains only a Bible verse reference (e.g. "John 3:16") — nothing
+    that identifies you. As with any web request, your IP address is visible to
+    bible-api.com's server as part of normal internet routing; that is standard
+    server-side logging by that third party; it is not something we collect,
+    receive, or have access to. If the network is unavailable, the app falls back
+    to a small bundled catalog of verses and continues to work fully offline.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>
+    If this policy changes, the date above will be updated. Material changes will
+    also be noted in the app's release notes.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about this policy or the app can be raised as an
+    <a href="https://github.com/walking-wisely/bibliada/issues">issue on GitHub</a>.
+  </p>
+
+  <footer>Bibliada is not affiliated with or endorsed by Apple Inc. or eBible.org.</footer>
+</body>
+</html>

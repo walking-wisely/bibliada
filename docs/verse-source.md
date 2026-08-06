@@ -25,9 +25,29 @@ the curated catalog (Psalms, Proverbs, Isaiah, the Gospels, Romans, Philippians 
 while **text** still comes from the API. This yields verse quality that's actually worth
 displaying, without hand-transcribing any scripture.
 
-Every string in `verses.json` was fetched from the API, not authored. The catalog was built
-with a throwaway script pacing requests ~1.5 s apart to be polite to a free public service;
-all 178 succeeded with no empty entries and no duplicate references.
+Every string in `verses.json` was fetched from the API, not authored. The catalog was
+regenerated on 2026-08-06 with `scripts/regenerate_verses.py`, which paces requests one every
+2.5 s (~12 req/30 s) to stay under bible-api.com's published limit of 15 requests / 30 seconds
+— the original build's ~1.5 s pacing (~20 req/30 s) exceeded it. The script re-fetches only
+this fixed 178-reference list, never a bulk/whole-Bible pull. All 178 succeeded with no empty
+entries and no duplicate references. Re-run it (and update this note) if the catalog is ever
+regenerated again.
+
+### The stray-quote defect and its fix
+
+24 of the 178 verses came back from the API with an unmatched curly quote ("“" or "”") — not
+a transcription mistake from the original throwaway script, but a property of bible-api.com
+itself: it returns exactly one verse per request, and the WEB text renders direct speech with
+quote marks that open or close *outside* that single verse's boundaries (the matching mark
+sits in the verse before or after). Verified directly: a fresh, unmodified fetch of e.g.
+Genesis 28:15 still returns the trailing `”` with no opening pair anywhere in that response.
+
+Both the regeneration script (`balance_quotes()`) and the runtime normalizer
+(`VerseProvider.normalize()` → `balanceQuotes()`) now strip exactly one dangling quote mark
+per verse when the count of `“` and `”` doesn't match: the last `“` if the verse opens a
+quotation that runs on, the first `”` if it closes one that started earlier. Nothing else in
+the text is altered. This keeps the bundled catalog and any live re-fetch of the same
+reference producing identical text.
 
 Note that bible-api.com normalizes `Psalm` → `Psalms` in its response `reference` field. The
 catalog stores the normalized form consistently, so a stored reference always matches what

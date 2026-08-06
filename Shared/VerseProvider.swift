@@ -140,6 +140,30 @@ actor VerseProvider {
             .components(separatedBy: .whitespacesAndNewlines)
             .filter { !$0.isEmpty }
             .joined(separator: " ")
-        return collapsed.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = collapsed.trimmingCharacters(in: .whitespacesAndNewlines)
+        return balanceQuotes(trimmed)
+    }
+
+    /// Strips a single dangling curly quote left over from fetching one verse in
+    /// isolation. bible-api.com returns exactly one verse per request, so a
+    /// reference that opens or closes a quotation spanning multiple verses in its
+    /// source chapter comes back with an unmatched "“" or "”" — confirmed against
+    /// the API's own response, not an artifact of how the catalog was built. Only
+    /// a single stray mark is ever removed; text with balanced quotes is untouched.
+    private static func balanceQuotes(_ text: String) -> String {
+        let opens = text.filter { $0 == "\u{201C}" }.count
+        let closes = text.filter { $0 == "\u{201D}" }.count
+        guard opens != closes else { return text }
+        if opens > closes, let index = text.lastIndex(of: "\u{201C}") {
+            var result = text
+            result.remove(at: index)
+            return result
+        }
+        if closes > opens, let index = text.firstIndex(of: "\u{201D}") {
+            var result = text
+            result.remove(at: index)
+            return result
+        }
+        return text
     }
 }
