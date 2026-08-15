@@ -36,31 +36,33 @@ private struct MenuBarContentView: View {
     private var appState = AppState.shared
     private var settingsStore = SettingsStore.shared
 
+    private var language: AppLanguage { settingsStore.settings.language }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             VerseCardView(verse: appState.verse, settings: settingsStore.settings)
                 .frame(width: 260, height: 180)
 
-            Button("New verse now") {
+            Button(language.t(.newVerseNow)) {
                 appState.refreshNow()
             }
             .keyboardShortcut("n", modifiers: [.command])
 
-            Toggle("Show verse on desktop", isOn: overlayEnabledBinding)
+            Toggle(language.t(.showVerseOnDesktop), isOn: overlayEnabledBinding)
 
             // Also on the card's own right-click menu, but that one goes away
             // while the card is locked — this is the way back.
-            Toggle("Lock position", isOn: OverlayCardView.positionLockedBinding)
+            Toggle(language.t(.lockPosition), isOn: OverlayCardView.positionLockedBinding)
                 .disabled(!settingsStore.settings.overlayEnabled)
 
             Divider()
 
-            Button("Settings…") {
+            Button(language.t(.settingsEllipsis)) {
                 openSettingsWindow()
             }
             .keyboardShortcut(",", modifiers: [.command])
 
-            Button("Quit") {
+            Button(language.t(.quit)) {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q", modifiers: [.command])

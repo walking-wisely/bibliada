@@ -66,7 +66,7 @@ xcodebuild \
   -configuration "$CONFIGURATION" \
   -derivedDataPath "$DERIVED_DATA_PATH" \
   build \
-  "${EXTRA_XCODEBUILD_ARGS[@]}"
+  ${EXTRA_XCODEBUILD_ARGS[@]+"${EXTRA_XCODEBUILD_ARGS[@]}"}
 
 BUILT_APP="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/Bibliada.app"
 

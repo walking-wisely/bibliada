@@ -8,19 +8,21 @@ import SwiftUI
 struct SettingsView: View {
     private var settingsStore = SettingsStore.shared
 
+    private var language: AppLanguage { settingsStore.settings.language }
+
     var body: some View {
         TabView {
             AppearanceSettingsTab(settings: settingsBinding)
-                .tabItem { Label("Appearance", systemImage: "paintpalette") }
+                .tabItem { Label(language.t(.tabAppearance), systemImage: "paintpalette") }
 
             SizePositionSettingsTab(settings: settingsBinding)
-                .tabItem { Label("Size & Position", systemImage: "aspectratio") }
+                .tabItem { Label(language.t(.tabSizePosition), systemImage: "aspectratio") }
 
             UpdatesSettingsTab(settings: settingsBinding)
-                .tabItem { Label("Verse changes", systemImage: "clock.arrow.circlepath") }
+                .tabItem { Label(language.t(.tabVerseChanges), systemImage: "clock.arrow.circlepath") }
 
             GeneralSettingsTab(settings: settingsBinding)
-                .tabItem { Label("General", systemImage: "gearshape") }
+                .tabItem { Label(language.t(.tabGeneral), systemImage: "gearshape") }
         }
         .tabViewStyle(.automatic)
         // Taller than the content strictly needs: Appearance now spends a fixed
@@ -42,11 +44,20 @@ struct SettingsView: View {
 private struct AppearanceSettingsTab: View {
     @Binding var settings: AppSettings
 
-    // Picked once when the tab appears rather than inline in `body`: every
-    // settings tweak (dragging a slider, moving a color picker) re-evaluates
-    // `body`, and `VerseProvider.bundledRandom()` called there would reroll
-    // the preview's verse on every single change instead of just once.
-    @State private var previewVerse: Verse = VerseProvider.bundledRandom()
+    // Picked once when the tab appears — in the translation currently
+    // selected in General — rather than inline in `body`: every settings
+    // tweak (dragging a slider, moving a color picker) re-evaluates `body`,
+    // and `VerseProvider.bundledRandom()` called there would reroll the
+    // preview's verse on every single change instead of just once. Rerolled
+    // explicitly, below, only when the translation itself changes, so the
+    // preview actually reflects what the card will show rather than being
+    // stuck in whatever translation happened to be picked at launch.
+    @State private var previewVerse: Verse
+
+    init(settings: Binding<AppSettings>) {
+        _settings = settings
+        _previewVerse = State(initialValue: VerseProvider.bundledRandom(enabledTranslations: [settings.wrappedValue.translationID]))
+    }
 
     /// Small enough that the controls below still get most of the window, big
     /// enough for the card's proportions and a line or two of verse to read
@@ -57,12 +68,14 @@ private struct AppearanceSettingsTab: View {
     /// the top of it, so it stays put while the settings scroll underneath —
     /// dragging Corner radius at the bottom of the list still shows the corners
     /// changing.
+    private var language: AppLanguage { settings.language }
+
     var body: some View {
         VStack(spacing: 0) {
             preview
             Divider()
             Form {
-                Section("Presets") {
+                Section(language.t(.presets)) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(GradientTheme.presets) { preset in
@@ -80,7 +93,7 @@ private struct AppearanceSettingsTab: View {
 
                 Section {
                     ColorPicker(
-                        "Start color",
+                        language.t(.startColor),
                         selection: Binding(
                             get: { settings.theme.startColor.color },
                             set: { settings.theme.startColor = RGBAColor($0) }
@@ -88,29 +101,29 @@ private struct AppearanceSettingsTab: View {
                         supportsOpacity: false
                     )
                     ColorPicker(
-                        "End color",
+                        language.t(.endColor),
                         selection: Binding(
                             get: { settings.theme.endColor.color },
                             set: { settings.theme.endColor = RGBAColor($0) }
                         ),
                         supportsOpacity: false
                     )
-                    SliderSettingRow(label: "Direction", value: $settings.theme.angle, range: 0...360, step: 1, suffix: "°")
+                    SliderSettingRow(label: language.t(.direction), value: $settings.theme.angle, range: 0...360, step: 1, suffix: "°")
                 } header: {
-                    Text("Gradient")
+                    Text(language.t(.gradient))
                 } footer: {
-                    Text("Direction is the way the colours run: 0° goes from the top down, 90° from the left across.")
+                    Text(language.t(.gradientFooter))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Text") {
-                    FontPicker(selection: $settings.font)
+                Section(language.t(.textSectionHeader)) {
+                    FontPicker(selection: $settings.font, language: language)
                     // Lives here rather than under Gradient: it's the colour of
                     // the text, and the thing it has to stay legible against is
                     // chosen two sections up either way.
                     ColorPicker(
-                        "Text color",
+                        language.t(.textColor),
                         selection: Binding(
                             get: { settings.theme.textColor.color },
                             set: { settings.theme.textColor = RGBAColor($0) }
@@ -119,10 +132,10 @@ private struct AppearanceSettingsTab: View {
                     )
                 }
 
-                Section("Card") {
-                    SliderSettingRow(label: "Corner radius", value: $settings.cornerRadius, range: 0...40, step: 1)
+                Section(language.t(.cardSectionHeader)) {
+                    SliderSettingRow(label: language.t(.cornerRadius), value: $settings.cornerRadius, range: 0...40, step: 1)
                     SliderSettingRow(
-                        label: "Opacity",
+                        label: language.t(.opacity),
                         // Opacity is stored 0.2...1.0 but shown/typed as a
                         // 20...100 percentage, so the conversion lives here
                         // rather than inside the row or field.
@@ -134,10 +147,13 @@ private struct AppearanceSettingsTab: View {
                         step: 1,
                         suffix: "%"
                     )
-                    SliderSettingRow(label: "Text size", value: $settings.fontScale, range: 0.6...2.0, step: 0.1, decimals: 1, suffix: "×")
+                    SliderSettingRow(label: language.t(.textSize), value: $settings.fontScale, range: 0.6...2.0, step: 0.1, decimals: 1, suffix: "×")
                 }
             }
             .formStyle(.grouped)
+        }
+        .onChange(of: settings.translationID) { _, newID in
+            previewVerse = VerseProvider.bundledRandom(enabledTranslations: [newID])
         }
     }
 
@@ -147,7 +163,7 @@ private struct AppearanceSettingsTab: View {
     /// than being cut off by it.
     private var preview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Style preview")
+            Text(language.t(.stylePreview))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
             VerseCardView(verse: previewVerse, settings: settings)
@@ -169,6 +185,7 @@ private struct AppearanceSettingsTab: View {
 /// isn't there.
 private struct FontPicker: View {
     @Binding var selection: FontChoice
+    var language: AppLanguage = .en
 
     /// Enumerated once: the list runs to hundreds of families and doesn't change
     /// while Settings is open.
@@ -179,7 +196,7 @@ private struct FontPicker: View {
         .sorted()
 
     var body: some View {
-        Picker("Font", selection: Binding<String>(
+        Picker(language.t(.font), selection: Binding<String>(
             get: { selection.storageValue },
             set: { selection = FontChoice(storageValue: $0) }
         )) {
@@ -278,21 +295,23 @@ private struct SizePositionSettingsTab: View {
         Self.minSide...max(Self.minSide, maxCardSize.height)
     }
 
+    private var language: AppLanguage { settings.language }
+
     var body: some View {
         Form {
             if let grid, WidgetGrid.isMeasuredSystem {
                 Section {
                     WidgetGridPicker(settings: $settings, grid: grid)
                 } header: {
-                    Text("Place on the widget grid")
+                    Text(language.t(.placeOnWidgetGrid))
                 } footer: {
-                    Text("Each cell is one widget slot on the display the card is on. Drag across cells to set the card's size and position in one go, so it lines up with the widgets already sitting there. The outline is where the card is now\(settings.overlayEnabled ? "" : " — switch on “Show verse on desktop” in General to actually see it").")
+                    Text(language.t(.widgetGridFooter) + (settings.overlayEnabled ? "" : language.t(.widgetGridFooterShowOverlayHint)) + ".")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             } else {
                 Section {
-                    Text("Widget slot sizes are only known for macOS 26 and later, so there's no grid to line up with on this version. Set the size and position with the fields below.")
+                    Text(language.t(.widgetGridUnavailable))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -300,7 +319,7 @@ private struct SizePositionSettingsTab: View {
 
             Section {
                 NumericSettingRow(
-                    label: "Width",
+                    label: language.t(.width),
                     value: Binding<Double>(
                         get: { settings.overlayFrame.width },
                         set: { settings.overlayFrame.size.width = $0 }
@@ -308,7 +327,7 @@ private struct SizePositionSettingsTab: View {
                     range: widthRange
                 )
                 NumericSettingRow(
-                    label: "Height",
+                    label: language.t(.height),
                     value: Binding<Double>(
                         get: { settings.overlayFrame.height },
                         set: { settings.overlayFrame.size.height = $0 }
@@ -316,16 +335,16 @@ private struct SizePositionSettingsTab: View {
                     range: heightRange
                 )
             } header: {
-                Text("Size")
+                Text(language.t(.sizeSectionHeader))
             } footer: {
-                Text("Type a size and press Return, or use the arrows to nudge it. Sizes are in points, the same units as the position below — on a Retina display one point covers two pixels. The card is kept inside the usable area of the display it's on, ignoring the menu bar and the Dock, and never goes below \(Int(Self.minSide)) in either direction.")
+                Text(language.t(.sizeFooter, Int(Self.minSide)))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
                 NumericSettingRow(
-                    label: "X",
+                    label: language.t(.xLabel),
                     value: Binding<Double>(
                         get: { settings.overlayFrame.origin.x },
                         set: { settings.overlayFrame.origin.x = $0 }
@@ -337,7 +356,7 @@ private struct SizePositionSettingsTab: View {
                     showsBounds: false
                 )
                 NumericSettingRow(
-                    label: "Y",
+                    label: language.t(.yLabel),
                     value: Binding<Double>(
                         get: { settings.overlayFrame.origin.y },
                         set: { settings.overlayFrame.origin.y = $0 }
@@ -346,15 +365,15 @@ private struct SizePositionSettingsTab: View {
                     showsBounds: false
                 )
             } header: {
-                Text("Position")
+                Text(language.t(.positionSectionHeader))
             } footer: {
-                Text("Where the card's bottom-left corner sits, counted from the bottom-left of your main display: a bigger X moves it right, a bigger Y moves it up. The card is always kept fully on one display, so a value that would push it past an edge is pulled back in. To move it to another display, unlock it and drag it there.")
+                Text(language.t(.positionFooter))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Text("While the card is unlocked you can also drag it to move it, or drag its edges to resize it, and wherever you leave it is written back into these fields. It starts out locked — unlock it in General, from the menu-bar menu, or by right-clicking the card. The grid and the fields here work either way.")
+                Text(language.t(.unlockedHint))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -807,8 +826,8 @@ private struct WidgetGridPicker: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
-            .accessibilityLabel("Widget grid")
-            .accessibilityHint("Drag across cells to size and place the card. The Width, Height, X and Y fields below do the same thing without dragging.")
+            .accessibilityLabel(settings.language.t(.widgetGridAccessibilityLabel))
+            .accessibilityHint(settings.language.t(.widgetGridAccessibilityHint))
     }
 
     // MARK: Drawing
@@ -879,6 +898,8 @@ private struct WidgetGridPicker: View {
 private struct UpdatesSettingsTab: View {
     @Binding var settings: AppSettings
 
+    private var language: AppLanguage { settings.language }
+
     var body: some View {
         Form {
             Section {
@@ -886,27 +907,27 @@ private struct UpdatesSettingsTab: View {
                 // the only way in. One control per row, since an HStack of two
                 // inside a Form hoists the first child into the label slot.
                 IntField(
-                    label: "Hours",
+                    label: language.t(.hours),
                     range: 0...24,
                     step: 1,
                     value: Binding<Int>(get: { hours }, set: { setHours($0) })
                 )
                 IntField(
-                    label: "Minutes",
+                    label: language.t(.minutes),
                     range: 0...59,
                     step: 5,
                     value: Binding<Int>(get: { minutes }, set: { setMinutes($0) })
                 )
 
             } header: {
-                Text("Change the verse every")
+                Text(language.t(.changeVerseEvery))
             } footer: {
-                Text("Anything from 1 minute to 24 hours in total. The verse on your desktop changes exactly this often, because the app keeps its own timer.\n\nWidgets can't be that precise: macOS decides when a widget is allowed to refresh, so a widget rounds this down to one of a few fixed schedules — every hour, every 3, 6 or 12 hours, or once a day. Anything under 3 hours becomes hourly. Right now widgets change \(settings.widgetFrequency.displayName.lowercased()). A widget you've given its own schedule keeps that instead.")
+                Text(language.t(.changeVerseEveryFooter, settings.widgetFrequency.displayName(language).lowercased()))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("Quick presets") {
+            Section(language.t(.quickPresets)) {
                 HStack(spacing: 10) {
                     ForEach([15, 30, 60, 180, 720, 1440], id: \.self) { preset in
                         Button(label(forMinutes: preset)) {
@@ -939,13 +960,15 @@ private struct UpdatesSettingsTab: View {
     }
 
     private func label(forMinutes total: Int) -> String {
+        let minutesShort = language.t(.minutesShort)
+        let hoursShort = language.t(.hoursShort)
         switch total {
-        case ..<60: return "\(total) min"
-        case 1440: return "24 h"
+        case ..<60: return "\(total) \(minutesShort)"
+        case 1440: return "24 \(hoursShort)"
         default:
             let h = total / 60
             let m = total % 60
-            return m == 0 ? "\(h) h" : "\(h) h \(m) m"
+            return m == 0 ? "\(h) \(hoursShort)" : "\(h) \(hoursShort) \(m) \(minutesShort)"
         }
     }
 }
@@ -1039,31 +1062,56 @@ private struct GeneralSettingsTab: View {
     @Binding var settings: AppSettings
     var settingsStore = SettingsStore.shared
 
+    /// Set right after the user changes `settings.language`, when a bundled
+    /// translation exists in that language and the current translation isn't
+    /// already it — cleared once the confirmation dialog is dismissed either
+    /// way. See `handleLanguageChange`.
+    @State private var suggestedTranslation: TranslationMeta?
+
+    private var language: AppLanguage { settings.language }
+
     var body: some View {
         Form {
             Section {
-                Toggle("Show verse on desktop", isOn: $settings.overlayEnabled)
+                Picker(language.t(.languageLabel), selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .onChange(of: settings.language) { _, newLanguage in
+                    handleLanguageChange(to: newLanguage)
+                }
+            } header: {
+                Text(language.t(.interfaceLanguageSectionHeader))
+            }
 
-                Toggle("Lock position", isOn: $settings.positionLocked)
+            Section {
+                Toggle(language.t(.showVerseOnDesktop), isOn: $settings.overlayEnabled)
+
+                Toggle(language.t(.lockPosition), isOn: $settings.positionLocked)
                     .disabled(!settings.overlayEnabled)
                 if !settings.overlayEnabled {
-                    Text("Switch on “Show verse on desktop” to place and lock the card.")
+                    Text(language.t(.enableOverlayHint))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else if settings.positionLocked {
-                    Text("The card stays where it is and clicks pass through it, so it can't be moved or resized by accident. That also means right-clicking it does nothing — unlock it here or from the menu bar. Size and position can still be changed under Size & Position.")
+                    Text(language.t(.lockedHint))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                Toggle("Show verse reference on the desktop card", isOn: $settings.showReference)
-                Text("Each widget has its own setting for the reference, in the widget's own options.")
+                Toggle(language.t(.showReferenceToggle), isOn: $settings.showReference)
+                Text(language.t(.perWidgetReferenceHint))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Text("Verses are the World English Bible, fetched from bible-api.com. Without a connection Bibliada picks from the verses built into the app instead, so it always has something to show.")
+                TranslationPickerView(selectedID: $settings.translationID, language: language)
+            } header: {
+                Text(language.t(.translationsSectionHeader))
+            } footer: {
+                Text(language.t(.translationsFooter))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -1071,7 +1119,7 @@ private struct GeneralSettingsTab: View {
             if !settingsStore.isShared {
                 Section {
                     Label(
-                        "Widgets can't read your settings on this copy of Bibliada, so they'll show the built-in look instead of your colours, font and card style. The verse on your desktop is unaffected. Installing a signed copy of Bibliada fixes it.",
+                        language.t(.widgetsNotSharedWarning),
                         systemImage: "exclamationmark.triangle.fill"
                     )
                     .font(.caption)
@@ -1080,5 +1128,35 @@ private struct GeneralSettingsTab: View {
             }
         }
         .formStyle(.grouped)
+        .confirmationDialog(
+            language.t(.switchTranslationTitle),
+            isPresented: Binding(
+                get: { suggestedTranslation != nil },
+                set: { if !$0 { suggestedTranslation = nil } }
+            ),
+            presenting: suggestedTranslation
+        ) { match in
+            Button(language.t(.switchTranslationConfirm)) {
+                settings.translationID = match.id
+                suggestedTranslation = nil
+            }
+            Button(language.t(.switchTranslationKeep), role: .cancel) {
+                suggestedTranslation = nil
+            }
+        } message: { match in
+            Text(language.t(.switchTranslationMessage, language.displayName, match.displayName))
+        }
+    }
+
+    /// Offers to switch the Bible translation to match a newly chosen
+    /// interface language — but only when a bundled translation actually
+    /// exists in that language and the current translation isn't already it,
+    /// so the prompt never appears with nothing useful to suggest.
+    private func handleLanguageChange(to newLanguage: AppLanguage) {
+        guard let currentMeta = BundledTranslations.meta(id: settings.translationID),
+              currentMeta.language != newLanguage.translationLanguageCode,
+              let match = BundledTranslations.firstMeta(languageCode: newLanguage.translationLanguageCode)
+        else { return }
+        suggestedTranslation = match
     }
 }

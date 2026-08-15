@@ -17,8 +17,8 @@ struct OverlayCardView: View {
     var body: some View {
         VerseCardView(verse: verse, settings: settings)
             .contextMenu {
-                Toggle("Lock position", isOn: Self.positionLockedBinding)
-                Button("New verse now") {
+                Toggle(settings.language.t(.lockPosition), isOn: Self.positionLockedBinding)
+                Button(settings.language.t(.newVerseNow)) {
                     AppState.shared.refreshNow()
                 }
             }
