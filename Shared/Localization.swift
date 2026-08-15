@@ -66,6 +66,9 @@ enum Loc: String {
     case settingsEllipsis
     case quit
 
+    // Settings window
+    case settingsWindowTitle
+
     // Settings tabs
     case tabAppearance
     case tabSizePosition
@@ -130,9 +133,7 @@ enum Loc: String {
     case switchTranslationKeep
 
     // Translation picker
-    case searchTranslations
     case allLanguages
-    case noTranslationsMatch
 
     static let table: [Loc: [AppLanguage: String]] = [
         .newVerseNow: [.en: "New verse now", .uk: "Новий вірш зараз"],
@@ -140,6 +141,8 @@ enum Loc: String {
         .lockPosition: [.en: "Lock position", .uk: "Заблокувати позицію"],
         .settingsEllipsis: [.en: "Settings…", .uk: "Налаштування…"],
         .quit: [.en: "Quit", .uk: "Вийти"],
+
+        .settingsWindowTitle: [.en: "Settings", .uk: "Налаштування"],
 
         .tabAppearance: [.en: "Appearance", .uk: "Вигляд"],
         .tabSizePosition: [.en: "Size & Position", .uk: "Розмір і позиція"],
@@ -244,8 +247,6 @@ enum Loc: String {
         .switchTranslationConfirm: [.en: "Switch translation", .uk: "Змінити переклад"],
         .switchTranslationKeep: [.en: "Keep current translation", .uk: "Залишити поточний переклад"],
 
-        .searchTranslations: [.en: "Search translations", .uk: "Пошук перекладів"],
         .allLanguages: [.en: "All languages", .uk: "Усі мови"],
-        .noTranslationsMatch: [.en: "No translations match “%@”.", .uk: "Немає перекладів, що відповідають «%@»."],
     ]
 }
