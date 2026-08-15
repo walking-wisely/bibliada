@@ -66,7 +66,8 @@ window. Everything is reached from the menu bar item (a `book.closed` SF Symbol)
 
 | Path | Role |
 |---|---|
-| `App/BibliadaApp.swift` | `@main` entry point; `MenuBarExtra` and `Settings` scenes |
+| `App/BibliadaApp.swift` | `@main` entry point; `AppDelegate` and `Settings` scene |
+| `App/MenuBarController.swift` | Owns the `NSStatusItem`/`NSPopover` menu-bar UI (AppKit, not `MenuBarExtra`, so left- and right-click both open it) |
 | `App/AppState.swift` | Current verse, refresh timer, settings reactivity, overlay lifecycle |
 | `App/OverlayWindowController.swift` | The desktop overlay window (see `desktop-overlay.md`) |
 | `App/SettingsView.swift` | All four settings tabs (see `settings.md`) |
