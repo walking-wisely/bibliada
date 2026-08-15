@@ -411,7 +411,17 @@ make_archive() {
 
   local settings=()
   while IFS= read -r line; do settings+=("$line"); done < <(build_settings)
-  settings+=("CODE_SIGN_IDENTITY=$identity")
+  # Deliberately NOT settings+=("CODE_SIGN_IDENTITY=$identity") here: forcing an
+  # explicit identity on the `archive` action while CODE_SIGN_STYLE=Automatic is
+  # also set makes Xcode treat it as a conflicting manual override ("target is
+  # automatically signed for development, but a conflicting code signing
+  # identity ... has been manually specified") and the archive fails outright.
+  # Any identity that satisfies the entitlements is fine for the archive itself
+  # (Automatic signing picks one on its own); the real distribution identity is
+  # applied afterwards, at export time, via each ExportOptions template's
+  # signingCertificate key (see make_export / the *.plist files). $identity is
+  # kept as a parameter purely so callers document which identity that export
+  # step expects to find in the keychain.
 
   local extra=()
   # -allowProvisioningUpdates lets xcodebuild create/renew the profiles that
