@@ -45,8 +45,8 @@ enum BundledTranslations {
         TranslationMeta(id: "KULISH", displayName: "Kulish (1903)", language: "uk", languageName: "Ukrainian"),
     ]
 
-    /// Every bundled translation enabled — the default until the user narrows it down.
-    static let defaultEnabledIDs: Set<String> = Set(all.map(\.id))
+    /// The translation used until the user picks one — the first bundled entry.
+    static let defaultID: String = all.first?.id ?? "WEB"
 
     static func meta(id: String) -> TranslationMeta? {
         all.first { $0.id == id }

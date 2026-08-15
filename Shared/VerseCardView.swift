@@ -136,7 +136,7 @@ struct VerseCardView: View {
             overlayFrame: CGRect(x: 0, y: 0, width: 1400, height: 900),
             fontScale: 1.0,
             showReference: true,
-            enabledTranslationIDs: BundledTranslations.defaultEnabledIDs,
+            translationID: BundledTranslations.defaultID,
             cornerRadius: 32,
             opacity: 1.0,
             positionLocked: false,

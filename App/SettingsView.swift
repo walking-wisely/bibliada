@@ -42,11 +42,20 @@ struct SettingsView: View {
 private struct AppearanceSettingsTab: View {
     @Binding var settings: AppSettings
 
-    // Picked once when the tab appears rather than inline in `body`: every
-    // settings tweak (dragging a slider, moving a color picker) re-evaluates
-    // `body`, and `VerseProvider.bundledRandom()` called there would reroll
-    // the preview's verse on every single change instead of just once.
-    @State private var previewVerse: Verse = VerseProvider.bundledRandom()
+    // Picked once when the tab appears — in the translation currently
+    // selected in General — rather than inline in `body`: every settings
+    // tweak (dragging a slider, moving a color picker) re-evaluates `body`,
+    // and `VerseProvider.bundledRandom()` called there would reroll the
+    // preview's verse on every single change instead of just once. Rerolled
+    // explicitly, below, only when the translation itself changes, so the
+    // preview actually reflects what the card will show rather than being
+    // stuck in whatever translation happened to be picked at launch.
+    @State private var previewVerse: Verse
+
+    init(settings: Binding<AppSettings>) {
+        _settings = settings
+        _previewVerse = State(initialValue: VerseProvider.bundledRandom(enabledTranslations: [settings.wrappedValue.translationID]))
+    }
 
     /// Small enough that the controls below still get most of the window, big
     /// enough for the card's proportions and a line or two of verse to read
@@ -138,6 +147,9 @@ private struct AppearanceSettingsTab: View {
                 }
             }
             .formStyle(.grouped)
+        }
+        .onChange(of: settings.translationID) { _, newID in
+            previewVerse = VerseProvider.bundledRandom(enabledTranslations: [newID])
         }
     }
 
@@ -1063,11 +1075,11 @@ private struct GeneralSettingsTab: View {
             }
 
             Section {
-                TranslationPickerView(selectedIDs: $settings.enabledTranslationIDs)
+                TranslationPickerView(selectedID: $settings.translationID)
             } header: {
                 Text("Translations")
             } footer: {
-                Text("Verses are picked at random from whichever translations are selected. Everything is bundled into the app — no network connection needed.")
+                Text("Verses come from whichever translation is selected below. Everything is bundled into the app — no network connection needed.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

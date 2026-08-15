@@ -39,7 +39,7 @@ struct VerseTimelineProvider: AppIntentTimelineProvider {
     func snapshot(for configuration: VerseWidgetConfigurationIntent, in context: Context) async -> VerseEntry {
         let settings = await effectiveSettings(for: configuration, reloadFirst: false)
         let verse = VerseCache.load()?.verse
-            ?? VerseProvider.bundledRandom(enabledTranslations: Array(settings.enabledTranslationIDs))
+            ?? VerseProvider.bundledRandom(enabledTranslations: [settings.translationID])
         return VerseEntry(date: Date(), verse: verse, settings: settings)
     }
 
@@ -56,7 +56,7 @@ struct VerseTimelineProvider: AppIntentTimelineProvider {
         // `nextVerse()` never throws — it's a pure offline lookup against the
         // bundled catalog (and always writes `VerseCache`) — so there's no
         // empty-timeline case to guard against here.
-        let firstVerse = await VerseProvider.shared.nextVerse(enabledTranslations: Array(settings.enabledTranslationIDs))
+        let firstVerse = await VerseProvider.shared.nextVerse(enabledTranslations: [settings.translationID])
 
         // Build a shuffled pool of *other* curated verses, in the same
         // translation as the entry anchoring this timeline, so subsequent

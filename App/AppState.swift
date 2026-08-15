@@ -33,7 +33,7 @@ final class AppState {
             verse = cached.verse
             lastFetchDate = cached.fetchedAt
         } else {
-            verse = VerseProvider.bundledRandom(enabledTranslations: Array(SettingsStore.shared.settings.enabledTranslationIDs))
+            verse = VerseProvider.bundledRandom(enabledTranslations: [SettingsStore.shared.settings.translationID])
             lastFetchDate = .distantPast
         }
 
@@ -64,7 +64,7 @@ final class AppState {
     }
 
     private func performRefresh() async {
-        let next = await VerseProvider.shared.nextVerse(enabledTranslations: Array(SettingsStore.shared.settings.enabledTranslationIDs))
+        let next = await VerseProvider.shared.nextVerse(enabledTranslations: [SettingsStore.shared.settings.translationID])
         guard !Task.isCancelled else { return }
         verse = next
         lastFetchDate = Date()
@@ -135,6 +135,11 @@ final class AppState {
                 // overlay itself after a drag also lands here, but then the
                 // panel already has that frame, so the apply is a no-op.
                 let frameChanged = current.overlayFrame != last.overlayFrame
+                // The displayed `verse` is fetched text, not a live-rendered
+                // property of settings — switching translations otherwise
+                // leaves the menu bar and overlay showing the old verse in the
+                // old translation until the next scheduled refresh.
+                let translationChanged = current.translationID != last.translationID
                 last = current
 
                 if frequencyChanged {
@@ -142,6 +147,9 @@ final class AppState {
                 }
                 if overlayEnabledChanged {
                     self.applyOverlayState()
+                }
+                if translationChanged {
+                    self.refreshNow()
                 }
                 // Live-apply theme/opacity/click-through edits to a visible overlay.
                 self.overlayController?.applySettingsChange(current, applyFrame: frameChanged)
