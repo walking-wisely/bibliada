@@ -37,8 +37,9 @@ struct VerseTimelineProvider: AppIntentTimelineProvider {
     /// only falls back to a bundled random verse if nothing has been cached yet.
     /// Deliberately never hits the network here.
     func snapshot(for configuration: VerseWidgetConfigurationIntent, in context: Context) async -> VerseEntry {
-        let verse = VerseCache.load()?.verse ?? VerseProvider.bundledRandom()
         let settings = await effectiveSettings(for: configuration, reloadFirst: false)
+        let verse = VerseCache.load()?.verse
+            ?? VerseProvider.bundledRandom(enabledTranslations: Array(settings.enabledTranslationIDs))
         return VerseEntry(date: Date(), verse: verse, settings: settings)
     }
 
@@ -52,16 +53,15 @@ struct VerseTimelineProvider: AppIntentTimelineProvider {
         let dayInSeconds: TimeInterval = 24 * 60 * 60
         let entryCount = max(1, min(24, Int(dayInSeconds / interval)))
 
-        // `nextVerse()` never throws: internally it tries bible-api.com and
-        // falls back to the bundled catalog (and always writes `VerseCache`) on
-        // any failure, so there's no empty-timeline case to guard against here.
-        let firstVerse = await VerseProvider.shared.nextVerse()
+        // `nextVerse()` never throws — it's a pure offline lookup against the
+        // bundled catalog (and always writes `VerseCache`) — so there's no
+        // empty-timeline case to guard against here.
+        let firstVerse = await VerseProvider.shared.nextVerse(enabledTranslations: Array(settings.enabledTranslationIDs))
 
-        // Build a shuffled pool of *other* catalog verses so subsequent entries
-        // visibly rotate even though we can't fetch fresh network text for each
-        // of them individually (that would be far more than "one request per
-        // update" and there's no guarantee the system will even ask again soon).
-        var pool = VerseProvider.catalog.filter { $0 != firstVerse }
+        // Build a shuffled pool of *other* curated verses, in the same
+        // translation as the entry anchoring this timeline, so subsequent
+        // entries visibly rotate between system-triggered reloads.
+        var pool = VerseProvider.curatedVerses(translationID: firstVerse.translation).filter { $0 != firstVerse }
         pool.shuffle()
 
         var entries: [VerseEntry] = [VerseEntry(date: Date(), verse: firstVerse, settings: settings)]

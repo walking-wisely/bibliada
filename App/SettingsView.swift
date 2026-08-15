@@ -1063,7 +1063,11 @@ private struct GeneralSettingsTab: View {
             }
 
             Section {
-                Text("Verses are the World English Bible, fetched from bible-api.com. Without a connection Bibliada picks from the verses built into the app instead, so it always has something to show.")
+                TranslationPickerView(selectedIDs: $settings.enabledTranslationIDs)
+            } header: {
+                Text("Translations")
+            } footer: {
+                Text("Verses are picked at random from whichever translations are selected. Everything is bundled into the app — no network connection needed.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

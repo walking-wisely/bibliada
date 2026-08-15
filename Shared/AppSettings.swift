@@ -126,6 +126,11 @@ struct AppSettings: Codable, Sendable, Equatable {
     /// 0.6...2.0, 1.0 default.
     var fontScale: Double
     var showReference: Bool
+    /// Which bundled translations verse selection draws from. Never empty in
+    /// practice — the picker UI refuses to let it become empty — but callers
+    /// that read it directly should still treat an empty set as "use WEB"
+    /// rather than assuming it's non-empty (see `TranslationCatalog.randomVerse`).
+    var enabledTranslationIDs: Set<String>
     /// 0...40.
     var cornerRadius: Double
     /// 0.2...1.0.
@@ -181,10 +186,11 @@ struct AppSettings: Codable, Sendable, Equatable {
         theme: .default,
         refreshMinutes: 60,
         font: .default,
-        overlayEnabled: false,
+        overlayEnabled: true,
         overlayFrame: CGRect(x: 1540, y: 60, width: 360, height: 360),
         fontScale: 1.0,
         showReference: true,
+        enabledTranslationIDs: BundledTranslations.defaultEnabledIDs,
         cornerRadius: 20,
         opacity: 1.0,
         // Locked from the start: the card is meant to sit still and be read, and

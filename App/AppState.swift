@@ -33,7 +33,7 @@ final class AppState {
             verse = cached.verse
             lastFetchDate = cached.fetchedAt
         } else {
-            verse = VerseProvider.bundledRandom()
+            verse = VerseProvider.bundledRandom(enabledTranslations: Array(SettingsStore.shared.settings.enabledTranslationIDs))
             lastFetchDate = .distantPast
         }
 
@@ -64,7 +64,7 @@ final class AppState {
     }
 
     private func performRefresh() async {
-        let next = await VerseProvider.shared.nextVerse()
+        let next = await VerseProvider.shared.nextVerse(enabledTranslations: Array(SettingsStore.shared.settings.enabledTranslationIDs))
         guard !Task.isCancelled else { return }
         verse = next
         lastFetchDate = Date()

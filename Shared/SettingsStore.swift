@@ -31,6 +31,7 @@ private struct StoredSettings: Codable {
     var overlayFrame: CodableRect
     var fontScale: Double
     var showReference: Bool
+    var enabledTranslationIDs: Set<String>
     var cornerRadius: Double
     var opacity: Double
     var positionLocked: Bool
@@ -48,6 +49,11 @@ private struct StoredSettings: Codable {
         overlayFrame = try container.decode(CodableRect.self, forKey: .overlayFrame)
         fontScale = try container.decode(Double.self, forKey: .fontScale)
         showReference = try container.decode(Bool.self, forKey: .showReference)
+        // Added when bundled translations shipped: absent in older blobs, which
+        // default to every bundled translation enabled rather than none (an
+        // empty set has no sane fallback for verse selection).
+        enabledTranslationIDs = try container.decodeIfPresent(Set<String>.self, forKey: .enabledTranslationIDs)
+            ?? BundledTranslations.defaultEnabledIDs
         cornerRadius = try container.decode(Double.self, forKey: .cornerRadius)
         opacity = try container.decode(Double.self, forKey: .opacity)
         // Added after `clickThrough` was retired, so it's absent in older blobs.
@@ -79,6 +85,7 @@ private struct StoredSettings: Codable {
         try container.encode(overlayFrame, forKey: .overlayFrame)
         try container.encode(fontScale, forKey: .fontScale)
         try container.encode(showReference, forKey: .showReference)
+        try container.encode(enabledTranslationIDs, forKey: .enabledTranslationIDs)
         try container.encode(cornerRadius, forKey: .cornerRadius)
         try container.encode(opacity, forKey: .opacity)
         try container.encode(positionLocked, forKey: .positionLocked)
@@ -87,7 +94,7 @@ private struct StoredSettings: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case theme, refreshMinutes, font, overlayEnabled, overlayFrame
-        case fontScale, showReference, cornerRadius, opacity, positionLocked, clickThrough
+        case fontScale, showReference, enabledTranslationIDs, cornerRadius, opacity, positionLocked, clickThrough
         /// Legacy key, decoded but never written.
         case frequency
     }
@@ -100,6 +107,7 @@ private struct StoredSettings: Codable {
         overlayFrame = CodableRect(settings.overlayFrame)
         fontScale = settings.fontScale
         showReference = settings.showReference
+        enabledTranslationIDs = settings.enabledTranslationIDs
         cornerRadius = settings.cornerRadius
         opacity = settings.opacity
         positionLocked = settings.positionLocked
@@ -115,6 +123,7 @@ private struct StoredSettings: Codable {
             overlayFrame: overlayFrame.rect,
             fontScale: fontScale,
             showReference: showReference,
+            enabledTranslationIDs: enabledTranslationIDs,
             cornerRadius: cornerRadius,
             opacity: opacity,
             positionLocked: positionLocked,
