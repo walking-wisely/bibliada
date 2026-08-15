@@ -177,16 +177,17 @@ Store delivery, a Team-ID prefix, or profile authorization. Your current
       a new `Shared/AppGroup.swift`, which reads the team identifier back from
       the running process's own code signature (`SecTaskCopyValueForEntitlement`)
       and falls back to the bare group name when unsigned.
-- [ ] **[unverified]** that App Store ingestion accepts a Team-ID-prefixed group.
-      Local signing is no longer in question — the app-store export in §2 above
-      produced a `Bibliada.pkg` whose embedded entitlements correctly resolve to
-      `8284H9W4YV.group.com.bibliada.shared`, so the *build* is fine either way.
-      What's still open is Apple's server-side validation during ASC upload,
-      which only a real upload can answer. Confirm on the first upload. If
-      rejected, use the bare form for the store
-      variant *and* add a first-launch migration reading whichever domain is
-      populated — otherwise users moving between channels silently lose every
-      setting and the cached verse.
+- [x] ~~**[unverified]** that App Store ingestion accepts a Team-ID-prefixed group.~~
+      **Confirmed.** Uploaded `Bibliada.pkg` (with the Team-ID-prefixed
+      `8284H9W4YV.group.com.bibliada.shared` entitlement) to App Store Connect
+      via `scripts/release.sh --variant app-store --upload`
+      (`xcodebuild -exportArchive -exportOptionsPlist
+      ExportOptions-app-store.plist ... destination=upload`). Both the
+      "analysis" and "SPI analysis" ingestion stages accepted it
+      ("Upload succeeded"), and TestFlight → macOS Builds shows Build 1 at
+      status **Ready to Submit** — full server-side processing completed with
+      no entitlement rejection. No fallback/migration needed; the
+      Team-ID-prefixed form works unmodified on both channels.
 
 ---
 

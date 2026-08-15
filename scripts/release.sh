@@ -889,10 +889,24 @@ main() {
     release_app_store
   fi
 
-  emit_manifest
+  # `--variant app-store --upload` deliberately produces no local artifact:
+  # release_app_store hands the .pkg straight to App Store Connect and returns
+  # without copying anything into RELEASE_DIR (there's nothing left to notarize
+  # or distribute locally). emit_manifest would otherwise die with "no
+  # distributable artifacts produced" on every such run, even a successful one.
+  if [ "$VARIANT" = "app-store" ] && [ "$DO_UPLOAD" -eq 1 ]; then
+    step "Checksums"
+    log "Skipped: --variant app-store --upload produces no local artifact - the .pkg went straight to App Store Connect."
+  else
+    emit_manifest
+  fi
 
   step "Done"
-  log "Release $VERSION ($BUILD_NUMBER) is in $RELEASE_DIR"
+  if [ "$VARIANT" = "app-store" ] && [ "$DO_UPLOAD" -eq 1 ]; then
+    log "Release $VERSION ($BUILD_NUMBER) uploaded to App Store Connect. Check https://appstoreconnect.apple.com for processing status."
+  else
+    log "Release $VERSION ($BUILD_NUMBER) is in $RELEASE_DIR"
+  fi
   if [ "$SKIP_NOTARIZE" -eq 0 ] && [ "$VARIANT" != "app-store" ]; then
     log "Next: tag the commit (git tag -a v$VERSION -m 'Bibliada $VERSION' && git push --tags) and publish the .dmg + SHA256SUMS."
   fi
