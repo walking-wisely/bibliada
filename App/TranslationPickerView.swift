@@ -2,8 +2,8 @@ import AppKit
 import SwiftUI
 
 /// A single-select combobox for choosing which bundled translation is active:
-/// a fuzzy search field, a language filter, and a bounded-height list of rows
-/// where clicking a row selects it — a plain radio-button list, one at a time.
+/// a language filter and a bounded-height list of rows where clicking a row
+/// selects it — a plain radio-button list, one at a time.
 ///
 /// Verse selection reads from exactly one translation. Letting more than one
 /// be ticked at once (an earlier version did) meant the verse's *language*
@@ -20,7 +20,6 @@ struct TranslationPickerView: View {
     @Binding var selectedID: String
     var language: AppLanguage = .en
 
-    @State private var query: String = ""
     @State private var languageFilter: String? = nil // nil = All
 
     /// Every row's fixed height, matched to `settingRowHeight` in
@@ -48,7 +47,6 @@ struct TranslationPickerView: View {
     private var filtered: [TranslationMeta] {
         BundledTranslations.all
             .filter { languageFilter == nil || $0.languageName == languageFilter }
-            .filter { query.isEmpty || FuzzyMatch.matches(query: query, in: [$0.displayName, $0.languageName, $0.id]) }
     }
 
     var body: some View {
@@ -61,26 +59,14 @@ struct TranslationPickerView: View {
     // MARK: Controls
 
     private var controls: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 4) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                TextField(language.t(.searchTranslations), text: $query)
-                    .textFieldStyle(.plain)
+        Picker(language.t(.allLanguages), selection: $languageFilter) {
+            Text(language.t(.allLanguages)).tag(String?.none)
+            ForEach(languages, id: \.self) { name in
+                Text(name).tag(String?.some(name))
             }
-            .padding(.horizontal, 6)
-            .frame(height: rowHeight)
-            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(.quaternary.opacity(0.4)))
-
-            Picker(language.t(.allLanguages), selection: $languageFilter) {
-                Text(language.t(.allLanguages)).tag(String?.none)
-                ForEach(languages, id: \.self) { name in
-                    Text(name).tag(String?.some(name))
-                }
-            }
-            .labelsHidden()
-            .frame(width: 150)
         }
+        .labelsHidden()
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: Row list
@@ -92,12 +78,6 @@ struct TranslationPickerView: View {
                     TranslationRow(meta: meta, isSelected: selectedID == meta.id, height: rowHeight)
                         .contentShape(Rectangle())
                         .onTapGesture { selectedID = meta.id }
-                }
-                if filtered.isEmpty {
-                    Text(language.t(.noTranslationsMatch, query))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.vertical, 8)
                 }
             }
             .padding(4)
@@ -131,32 +111,6 @@ private struct TranslationRow: View {
             RoundedRectangle(cornerRadius: 5, style: .continuous)
                 .fill(isSelected ? Color.accentColor.opacity(0.15) : .clear)
         )
-    }
-}
-
-// MARK: - Fuzzy matching
-
-/// A deliberately simple subsequence matcher: `query`'s characters (lowercased)
-/// must appear in order somewhere in the candidate, not necessarily adjacent —
-/// "wb" matches "World English Bible" via the leading W and the B in "Bible".
-/// No scoring/ranking is exposed since this picker only needs a yes/no filter,
-/// not a sorted-by-relevance list.
-enum FuzzyMatch {
-    static func matches(query: String, in candidates: [String]) -> Bool {
-        let needle = query.lowercased()
-        guard !needle.isEmpty else { return true }
-        return candidates.contains { isSubsequence(needle, of: $0.lowercased()) }
-    }
-
-    private static func isSubsequence(_ needle: String, of haystack: String) -> Bool {
-        var needleIndex = needle.startIndex
-        for char in haystack {
-            guard needleIndex < needle.endIndex else { break }
-            if char == needle[needleIndex] {
-                needleIndex = needle.index(after: needleIndex)
-            }
-        }
-        return needleIndex == needle.endIndex
     }
 }
 

@@ -1,6 +1,36 @@
 import AppKit
 import SwiftUI
 
+/// One of the four settings tabs, plus what its switcher button shows.
+///
+/// `TabView` only gets the native icon-above-label switcher (see the
+/// reference screenshot this was built to match) when it's hosted inside a
+/// real SwiftUI `Settings` scene. `SettingsView` is hosted in a plain
+/// `NSWindow` instead — see `SettingsWindowController` for why — so `TabBar`
+/// below hand-rolls a matching switcher, driven by this enum, rather than
+/// falling back to `TabView`'s plain-text default.
+private enum SettingsTab: CaseIterable {
+    case appearance, sizePosition, verseChanges, general
+
+    var systemImage: String {
+        switch self {
+        case .appearance: return "paintpalette"
+        case .sizePosition: return "aspectratio"
+        case .verseChanges: return "clock.arrow.circlepath"
+        case .general: return "gearshape"
+        }
+    }
+
+    func title(_ language: AppLanguage) -> String {
+        switch self {
+        case .appearance: return language.t(.tabAppearance)
+        case .sizePosition: return language.t(.tabSizePosition)
+        case .verseChanges: return language.t(.tabVerseChanges)
+        case .general: return language.t(.tabGeneral)
+        }
+    }
+}
+
 /// The Settings window, opened from the menu-bar extra. Four tabs: Appearance,
 /// Size & Position, Verse changes, and General. Every control writes straight through
 /// to `SettingsStore.shared.settings`, so changes persist and (where relevant)
@@ -8,27 +38,36 @@ import SwiftUI
 struct SettingsView: View {
     private var settingsStore = SettingsStore.shared
 
+    @State private var selectedTab: SettingsTab = .appearance
+
     private var language: AppLanguage { settingsStore.settings.language }
 
     var body: some View {
-        TabView {
-            AppearanceSettingsTab(settings: settingsBinding)
-                .tabItem { Label(language.t(.tabAppearance), systemImage: "paintpalette") }
-
-            SizePositionSettingsTab(settings: settingsBinding)
-                .tabItem { Label(language.t(.tabSizePosition), systemImage: "aspectratio") }
-
-            UpdatesSettingsTab(settings: settingsBinding)
-                .tabItem { Label(language.t(.tabVerseChanges), systemImage: "clock.arrow.circlepath") }
-
-            GeneralSettingsTab(settings: settingsBinding)
-                .tabItem { Label(language.t(.tabGeneral), systemImage: "gearshape") }
+        VStack(spacing: 0) {
+            TabBar(selectedTab: $selectedTab, language: language)
+            Divider()
+            selectedTabView
         }
-        .tabViewStyle(.automatic)
         // Taller than the content strictly needs: Appearance now spends a fixed
         // strip at the top on the pinned preview, and without the extra height
-        // the list underneath it would only show two rows at a time.
-        .frame(width: 520, height: 560)
+        // the list underneath it would only show two rows at a time. 520×560 is
+        // the size the window opens at; below that it's user-resizable down to
+        // 300×500 — see `SettingsWindowController.minWindowSize`, which is what
+        // actually enforces this floor.
+        .frame(
+            minWidth: 300, idealWidth: 520, maxWidth: .infinity,
+            minHeight: 500, idealHeight: 560, maxHeight: .infinity
+        )
+    }
+
+    @ViewBuilder
+    private var selectedTabView: some View {
+        switch selectedTab {
+        case .appearance: AppearanceSettingsTab(settings: settingsBinding)
+        case .sizePosition: SizePositionSettingsTab(settings: settingsBinding)
+        case .verseChanges: UpdatesSettingsTab(settings: settingsBinding)
+        case .general: GeneralSettingsTab(settings: settingsBinding)
+        }
     }
 
     private var settingsBinding: Binding<AppSettings> {
@@ -36,6 +75,86 @@ struct SettingsView: View {
             get: { settingsStore.settings },
             set: { settingsStore.settings = $0 }
         )
+    }
+}
+
+/// The icon-above-label row of tab buttons, standing in for `TabView`'s own
+/// switcher (see `SettingsTab`'s doc comment for why).
+///
+/// Four labeled buttons at 76pt each don't have anywhere to give: that's a
+/// hard ~340pt floor on the whole bar regardless of what the window itself
+/// is willing to shrink to, so a narrower window just clipped the overflow
+/// instead of the bar actually getting smaller. `ViewThatFits` picks the
+/// icon-only row once the labeled one no longer fits — same fix as
+/// `SliderSettingRow` uses for its track — so the bar keeps shrinking down to
+/// icon width instead of clipping.
+private struct TabBar: View {
+    @Binding var selectedTab: SettingsTab
+    let language: AppLanguage
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            row(showsLabel: true)
+            row(showsLabel: false)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .background(.bar)
+    }
+
+    private func row(showsLabel: Bool) -> some View {
+        HStack(spacing: 4) {
+            ForEach(SettingsTab.allCases, id: \.self) { tab in
+                TabBarButton(
+                    title: tab.title(language),
+                    systemImage: tab.systemImage,
+                    showsLabel: showsLabel,
+                    isSelected: selectedTab == tab
+                ) {
+                    selectedTab = tab
+                }
+            }
+        }
+    }
+}
+
+private struct TabBarButton: View {
+    let title: String
+    let systemImage: String
+    var showsLabel: Bool = true
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 16))
+                if showsLabel {
+                    Text(title)
+                        .font(.caption)
+                }
+            }
+            .frame(width: showsLabel ? 76 : 32)
+            .padding(.vertical, 6)
+            .foregroundStyle(isSelected ? Color.accentColor : Color.primary)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
+            )
+            // `Color.clear` isn't hit-testable on its own, so without this the
+            // button only responds where the icon/text glyphs are actually
+            // drawn — not across the padded box around them, unlike a native
+            // tab switcher.
+            .contentShape(Rectangle())
+        }
+        // The icon-only row drops its only visible label, so both the
+        // hover tooltip and VoiceOver's label fall back to the title text
+        // that's still there, just not drawn.
+        .help(showsLabel ? "" : title)
+        .accessibilityLabel(title)
+        .buttonStyle(.plain)
     }
 }
 
@@ -430,22 +549,30 @@ private struct SliderSettingRow: View {
     /// "2.0×") at caption size.
     private let hintWidth: CGFloat = 32
 
+    /// Below this much room for the track itself, a slider stops reading as
+    /// a slider — its travel shrinks to a sliver and the thumb all but
+    /// swallows it. `ViewThatFits` uses this as the horizontal layout's
+    /// floor: narrower than this and `compactRow` takes over instead of the
+    /// track getting crushed further.
+    private let minTrackWidth: CGFloat = 120
+
     var body: some View {
+        // Tries `wideRow` first; once the window is too narrow for it to fit
+        // at `minTrackWidth`, falls back to `compactRow`. Both stay mounted
+        // candidates rather than a manually-measured switch, so the row
+        // reflows live as the window is dragged, not just on next open.
+        ViewThatFits(in: .horizontal) {
+            wideRow
+            compactRow
+        }
+    }
+
+    private var wideRow: some View {
         LabeledContent {
             HStack(alignment: .center, spacing: 8) {
                 hint(range.lowerBound, alignment: .trailing)
-                // A slider given a `step:` draws a row of tiny tick marks under
-                // its track — that faint dotted line. The snapping is worth
-                // keeping, the dots aren't, so the rounding happens in the
-                // binding and the slider itself stays smooth.
-                Slider(
-                    value: Binding(
-                        get: { value },
-                        set: { value = Self.snap($0, to: step, in: range) }
-                    ),
-                    in: range
-                )
-                .controlSize(.small)
+                slider
+                    .frame(minWidth: minTrackWidth)
                 hint(range.upperBound, alignment: .leading)
                 InlineNumericField(value: $value, range: range, decimals: decimals, step: step, suffix: suffix)
             }
@@ -453,6 +580,39 @@ private struct SliderSettingRow: View {
         } label: {
             Text(label)
         }
+    }
+
+    /// The narrow-window fallback: label and exact-value field share a line,
+    /// same as every other settings row, and the slider — with room to
+    /// actually act like one — drops to its own line underneath.
+    private var compactRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            LabeledContent {
+                InlineNumericField(value: $value, range: range, decimals: decimals, step: step, suffix: suffix)
+            } label: {
+                Text(label)
+            }
+            HStack(alignment: .center, spacing: 8) {
+                hint(range.lowerBound, alignment: .trailing)
+                slider
+                hint(range.upperBound, alignment: .leading)
+            }
+        }
+    }
+
+    private var slider: some View {
+        // A slider given a `step:` draws a row of tiny tick marks under its
+        // track — that faint dotted line. The snapping is worth keeping, the
+        // dots aren't, so the rounding happens in the binding and the slider
+        // itself stays smooth.
+        Slider(
+            value: Binding(
+                get: { value },
+                set: { value = Self.snap($0, to: step, in: range) }
+            ),
+            in: range
+        )
+        .controlSize(.small)
     }
 
     private func hint(_ bound: Double, alignment: Alignment) -> some View {
@@ -687,8 +847,12 @@ private struct InlineNumericField: View {
 /// The anchor is derived from the screen rather than hardcoded at the measured
 /// (8, 41): the 41 was the menu bar's 33 points plus the 8-point margin, and menu
 /// bar height varies by display.
-private struct WidgetGrid {
+struct WidgetGrid {
     /// One widget cell, including the padding around its card.
+    ///
+    /// Not `private` (unlike the rest of this type) because
+    /// `SettingsWindowController` also reads it, as the settings window's
+    /// minimum resizable width.
     static let cell: Double = 180
     /// Padding between a cell's edge and the card drawn inside it.
     static let cardInset: Double = 9
