@@ -137,6 +137,7 @@ struct VerseCardView: View {
             fontScale: 1.0,
             showReference: true,
             translationID: BundledTranslations.defaultID,
+            language: .systemDefault,
             cornerRadius: 32,
             opacity: 1.0,
             positionLocked: false,

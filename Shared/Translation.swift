@@ -51,4 +51,11 @@ enum BundledTranslations {
     static func meta(id: String) -> TranslationMeta? {
         all.first { $0.id == id }
     }
+
+    /// The first bundled translation in a given language (an ISO code like
+    /// "en"/"uk"), if any — used to suggest a matching translation when the
+    /// interface language changes.
+    static func firstMeta(languageCode: String) -> TranslationMeta? {
+        all.first { $0.language == languageCode }
+    }
 }

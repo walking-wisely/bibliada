@@ -32,6 +32,7 @@ private struct StoredSettings: Codable {
     var fontScale: Double
     var showReference: Bool
     var translationID: String
+    var language: AppLanguage
     var cornerRadius: Double
     var opacity: Double
     var positionLocked: Bool
@@ -61,6 +62,8 @@ private struct StoredSettings: Codable {
         } else {
             translationID = BundledTranslations.defaultID
         }
+        // Added when the language switch shipped: absent in older blobs.
+        language = try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .systemDefault
         cornerRadius = try container.decode(Double.self, forKey: .cornerRadius)
         opacity = try container.decode(Double.self, forKey: .opacity)
         // Added after `clickThrough` was retired, so it's absent in older blobs.
@@ -93,6 +96,7 @@ private struct StoredSettings: Codable {
         try container.encode(fontScale, forKey: .fontScale)
         try container.encode(showReference, forKey: .showReference)
         try container.encode(translationID, forKey: .translationID)
+        try container.encode(language, forKey: .language)
         try container.encode(cornerRadius, forKey: .cornerRadius)
         try container.encode(opacity, forKey: .opacity)
         try container.encode(positionLocked, forKey: .positionLocked)
@@ -101,7 +105,7 @@ private struct StoredSettings: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case theme, refreshMinutes, font, overlayEnabled, overlayFrame
-        case fontScale, showReference, translationID, cornerRadius, opacity, positionLocked, clickThrough
+        case fontScale, showReference, translationID, language, cornerRadius, opacity, positionLocked, clickThrough
         /// Legacy keys, decoded but never written.
         case frequency, enabledTranslationIDs
     }
@@ -115,6 +119,7 @@ private struct StoredSettings: Codable {
         fontScale = settings.fontScale
         showReference = settings.showReference
         translationID = settings.translationID
+        language = settings.language
         cornerRadius = settings.cornerRadius
         opacity = settings.opacity
         positionLocked = settings.positionLocked
@@ -131,6 +136,7 @@ private struct StoredSettings: Codable {
             fontScale: fontScale,
             showReference: showReference,
             translationID: translationID,
+            language: language,
             cornerRadius: cornerRadius,
             opacity: opacity,
             positionLocked: positionLocked,

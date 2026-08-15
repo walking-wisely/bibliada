@@ -22,13 +22,20 @@ enum UpdateFrequency: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    var displayName: String {
-        switch self {
-        case .hourly: return "Every hour"
-        case .every3Hours: return "Every 3 hours"
-        case .every6Hours: return "Every 6 hours"
-        case .every12Hours: return "Every 12 hours"
-        case .daily: return "Once a day"
+    var displayName: String { displayName(.en) }
+
+    func displayName(_ language: AppLanguage) -> String {
+        switch (self, language) {
+        case (.hourly, .en): return "Every hour"
+        case (.hourly, .uk): return "Щогодини"
+        case (.every3Hours, .en): return "Every 3 hours"
+        case (.every3Hours, .uk): return "Кожні 3 години"
+        case (.every6Hours, .en): return "Every 6 hours"
+        case (.every6Hours, .uk): return "Кожні 6 годин"
+        case (.every12Hours, .en): return "Every 12 hours"
+        case (.every12Hours, .uk): return "Кожні 12 годин"
+        case (.daily, .en): return "Once a day"
+        case (.daily, .uk): return "Раз на день"
         }
     }
 }
@@ -133,6 +140,9 @@ struct AppSettings: Codable, Sendable, Equatable {
     /// unrecognized id as "use WEB" rather than assuming it's always valid
     /// (see `TranslationCatalog.randomVerse`).
     var translationID: String
+    /// The language every label, button and menu item in the app is drawn in.
+    /// Independent of `translationID` — see `AppLanguage`.
+    var language: AppLanguage
     /// 0...40.
     var cornerRadius: Double
     /// 0.2...1.0.
@@ -193,6 +203,7 @@ struct AppSettings: Codable, Sendable, Equatable {
         fontScale: 1.0,
         showReference: true,
         translationID: BundledTranslations.defaultID,
+        language: .systemDefault,
         cornerRadius: 20,
         opacity: 1.0,
         // Locked from the start: the card is meant to sit still and be read, and

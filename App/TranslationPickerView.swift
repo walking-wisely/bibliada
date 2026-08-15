@@ -18,6 +18,7 @@ import SwiftUI
 /// `LabeledContent`-style rows rather than a full `Form`.
 struct TranslationPickerView: View {
     @Binding var selectedID: String
+    var language: AppLanguage = .en
 
     @State private var query: String = ""
     @State private var languageFilter: String? = nil // nil = All
@@ -64,15 +65,15 @@ struct TranslationPickerView: View {
             HStack(spacing: 4) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                TextField("Search translations", text: $query)
+                TextField(language.t(.searchTranslations), text: $query)
                     .textFieldStyle(.plain)
             }
             .padding(.horizontal, 6)
             .frame(height: rowHeight)
             .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(.quaternary.opacity(0.4)))
 
-            Picker("Language", selection: $languageFilter) {
-                Text("All languages").tag(String?.none)
+            Picker(language.t(.allLanguages), selection: $languageFilter) {
+                Text(language.t(.allLanguages)).tag(String?.none)
                 ForEach(languages, id: \.self) { name in
                     Text(name).tag(String?.some(name))
                 }
@@ -93,7 +94,7 @@ struct TranslationPickerView: View {
                         .onTapGesture { selectedID = meta.id }
                 }
                 if filtered.isEmpty {
-                    Text("No translations match “\(query)”.")
+                    Text(language.t(.noTranslationsMatch, query))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.vertical, 8)
