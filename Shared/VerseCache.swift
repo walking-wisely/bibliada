@@ -12,10 +12,8 @@ struct CachedVerse: Codable, Sendable {
 /// app and the widget extension can read the same "current verse".
 enum VerseCache {
     private static let key = "cachedVerse"
-    private static let suiteName = "group.com.bibliada.shared"
-
     private static var defaults: UserDefaults {
-        UserDefaults(suiteName: suiteName) ?? .standard
+        UserDefaults(suiteName: AppGroup.suiteName) ?? .standard
     }
 
     static func load() -> CachedVerse? {

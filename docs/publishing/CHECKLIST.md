@@ -52,33 +52,46 @@ treated as a hypothesis to test, not a fact.
 
 ## 1. Blockers — Developer ID / notarization
 
-The current Release build is **unsigned**, and the project as written cannot
-produce a signable one. Verified empirically against the existing artifact:
-`flags=0x20002(adhoc,linker-signed)`, `TeamIdentifier=not set`,
-`Sealed Resources=none`, empty entitlements. That single artifact trips four of
-Apple's rejection reasons at once.
+The Release build **was** unsigned; this section is now cleared. Verified with
+a real `BIBLIADA_TEAM_ID=8284H9W4YV`: `xcodebuild archive` +
+`-exportArchive -exportOptionsPlist scripts/ExportOptions-developer-id.plist`
+succeeded end to end, and the exported `Bibliada.app` shows
+`Authority=Developer ID Application: Ivan Dutov (8284H9W4YV)` →
+`Developer ID Certification Authority` → `Apple Root CA`,
+`TeamIdentifier=8284H9W4YV`, `flags=0x10000(runtime)` — a real distribution
+signature with hardened runtime actually on, not ad hoc.
 
-- [ ] **`CODE_SIGN_IDENTITY: "-"` is a project-wide base setting**
+- [x] **`CODE_SIGN_IDENTITY: "-"` is a project-wide base setting**
       (`project.yml:31`) with no per-configuration override. Even with a real
       Team ID, Release signs ad hoc, which Apple rejects. Scope it to `Debug`.
-- [ ] **`build.sh:57-60` forces `CODE_SIGNING_ALLOWED=NO`** whenever
+      Fixed in `7b1fbb7`; confirmed above via the Developer ID authority chain.
+- [x] **`build.sh:57-60` forces `CODE_SIGNING_ALLOWED=NO`** whenever
       `BIBLIADA_TEAM_ID` is unset — and that is the *default* path that also
       installs to `/Applications`. A forgotten `export` on release day exits `0`
       and prints `==> Built:`. Make the release lane hard-fail instead.
-- [ ] **`ENABLE_HARDENED_RUNTIME: YES` is currently a silent no-op**
+      Already true: `build.sh` intentionally keeps this fallback as the fast
+      local dev loop, but `scripts/release.sh:243` (`b79e291`) `die`s outright
+      when `BIBLIADA_TEAM_ID` is unset — that's the actual release lane.
+- [x] **`ENABLE_HARDENED_RUNTIME: YES` is currently a silent no-op**
       (`project.yml:54,79`) — the runtime bit is absent from the signature
       because nothing is really signed. It will start working once signing is
-      fixed; verify `flags=…(runtime)` afterwards.
-- [ ] **`build.sh:63` runs `xcodebuild build`, never `archive` + `-exportArchive`.**
+      fixed; verify `flags=…(runtime)` afterwards. Confirmed:
+      `flags=0x10000(runtime)` on the signed export above.
+- [x] **`build.sh:63` runs `xcodebuild build`, never `archive` + `-exportArchive`.**
       Only the export step strips `get-task-allow` and applies a secure
       timestamp. Two further independent rejection reasons. `scripts/release.sh`
-      now does this correctly.
-- [ ] **Create certificates:** Developer ID Application (for the `.dmg`).
+      now does this correctly — confirmed by the successful `archive` +
+      `-exportArchive` run above.
+- [x] **Create certificates:** Developer ID Application (for the `.dmg`).
       Developer ID Installer only if you ship a `.pkg`. Export each to `.p12` and
       back it up — Developer ID private keys cannot be re-downloaded and the
-      slots are limited.
-- [ ] **Resolve the App Group identifier before the first notarized build** —
-      see §3. Renaming it later orphans users' settings.
+      slots are limited. Both created via portal CSR upload, installed in the
+      login keychain; CSRs/keys backed up at `~/Documents/BibliadaSigning/`
+      (outside the repo).
+- [x] **Resolve the App Group identifier before the first notarized build** —
+      see §3. Renaming it later orphans users' settings. Done: Team-ID-prefixed
+      form in both entitlements files, confirmed resolving correctly at sign
+      time to `8284H9W4YV.group.com.bibliada.shared`.
 
 Two easy-to-get-wrong details: `spctl -a -vvv -t install` is for *installer
 packages*; a `.app` needs `-t exec`. And **you cannot staple a ZIP** — ship a
@@ -88,15 +101,24 @@ stapled `.dmg` so the ticket travels offline.
 
 ## 2. Blockers — Mac App Store
 
-Two of these fail at **upload**, before a human ever sees the app.
+This section is also cleared. Verified with the same real Team ID:
+`-exportArchive -exportOptionsPlist scripts/ExportOptions-app-store.plist`
+succeeded and produced a signed `Bibliada.pkg` —
+`pkgutil --check-signature` shows the chain
+`3rd Party Mac Developer Installer: Ivan Dutov (8284H9W4YV)` →
+`Apple Worldwide Developer Relations Certification Authority` →
+`Apple Root CA`. Both `Bibliada.app` and the embedded
+`BibliadaWidget.appex` signed and embed-validated cleanly during the same
+export, which requires a working provisioning profile per bundle ID.
 
-- [ ] **App Sandbox is off for the main app** — `project.yml:53`,
+- [x] **App Sandbox is off for the main app** — `project.yml:53`,
       `App/Bibliada.entitlements:5-6`. Mandatory for the store
-      (Guideline 2.4.5(i)). The widget is already sandboxed.
-- [ ] **`LSApplicationCategoryType` missing** from `App/Info.plist` →
+      (Guideline 2.4.5(i)). The widget is already sandboxed. Fixed in
+      `7b1fbb7`; confirmed on in the entitlements dump during the export above.
+- [x] **`LSApplicationCategoryType` missing** from `App/Info.plist` →
       **ITMS-90242**, hard upload failure. Suggested:
-      `public.app-category.lifestyle`.
-- [ ] **No app icon exists** → **ITMS-90236**. `AppIcon.appiconset/Contents.json`
+      `public.app-category.lifestyle`. Fixed in `7b1fbb7`.
+- [x] **No app icon exists** → **ITMS-90236**. `AppIcon.appiconset/Contents.json`
       declares 10 mac slots; the repo contains **zero `.png` files**.
       - The classic `.appiconset` is still accepted in Xcode 26 — Icon Composer
         is recommended, not mandatory.
@@ -106,17 +128,26 @@ Two of these fail at **upload**, before a human ever sees the app.
         slot *is* the store icon, taken from the binary.
       - Stay on the appiconset for this launch: an alpha-channel rejection
         (ITMS-90717) specific to the Icon Composer path was open in 2025 and
-        **[unverified]** as fixed.
-- [ ] **`ITSAppUsesNonExemptEncryption`** — add `<false/>` to `App/Info.plist`.
+        **[unverified]** as fixed. All 10 slots present, generated in `7b1fbb7`.
+- [x] **`ITSAppUsesNonExemptEncryption`** — add `<false/>` to `App/Info.plist`.
       Not a blocker, but every upload otherwise sits in "Missing Compliance"
       until answered by hand. HTTPS via `URLSession` is exempt.
-- [ ] Register App IDs `com.bibliada.Bibliada` and `com.bibliada.Bibliada.Widget`,
-      both with the App Groups capability.
-- [ ] Certificates: **Apple Distribution** for the `.app`, **3rd Party Mac
-      Developer Installer** for the `.pkg`.
-- [ ] Mac App Store provisioning profiles for **both** bundle IDs. A missing
+- [x] Register App IDs `com.bibliada.Bibliada` and `com.bibliada.Bibliada.Widget`,
+      both with the App Groups capability. Registered in the portal, both
+      configured with the App Groups capability pointed at
+      `group.com.bibliada.shared` ("Enabled App Groups (1)" on each, not just
+      the checkbox — the checkbox alone doesn't associate the group).
+- [x] Certificates: **Apple Distribution** for the `.app`, **3rd Party Mac
+      Developer Installer** for the `.pkg`. Both created and installed;
+      confirmed as valid `security find-identity -p basic` identities and
+      exercised in the signed export/`.pkg` above.
+- [x] Mac App Store provisioning profiles for **both** bundle IDs. A missing
       *widget* profile is the most common export failure for an app with an
-      extension.
+      extension. Confirmed indirectly: the export above signs and
+      embed-validates both `Bibliada.app` and `BibliadaWidget.appex`, which
+      isn't possible without a valid profile for each. (The portal's Profiles
+      page shows empty — expected: Xcode-managed automatic profiles don't
+      surface there, only manually-created ones do.)
 
 ---
 
@@ -136,15 +167,27 @@ on both channels without a profile authorizing it. Since macOS 15 Sequoia,
 Store delivery, a Team-ID prefix, or profile authorization. Your current
 `xcodebuild build` path embeds no profile at all.
 
-- [ ] **Use `$(TeamIdentifierPrefix)group.com.bibliada.shared` in both variants.**
+- [x] **Use `$(TeamIdentifierPrefix)group.com.bibliada.shared` in both variants.**
       XcodeGen expands it at build time, so one spelling serves both channels and
-      both builds share one container.
-- [ ] Update `Shared/SettingsStore.swift:137` and `Shared/VerseCache.swift:15`.
-- [ ] **[unverified]** that App Store ingestion accepts a Team-ID-prefixed group.
-      Confirm on the first upload. If rejected, use the bare form for the store
-      variant *and* add a first-launch migration reading whichever domain is
-      populated — otherwise users moving between channels silently lose every
-      setting and the cached verse.
+      both builds share one container. Done in
+      `App/Bibliada.entitlements` and `Widget/BibliadaWidget.entitlements`.
+- [x] Update `Shared/SettingsStore.swift` and `Shared/VerseCache.swift`. Since
+      `$(TeamIdentifierPrefix)` is only expanded by Xcode inside entitlements
+      files (not by Swift at runtime), both now resolve the suite name through
+      a new `Shared/AppGroup.swift`, which reads the team identifier back from
+      the running process's own code signature (`SecTaskCopyValueForEntitlement`)
+      and falls back to the bare group name when unsigned.
+- [x] ~~**[unverified]** that App Store ingestion accepts a Team-ID-prefixed group.~~
+      **Confirmed.** Uploaded `Bibliada.pkg` (with the Team-ID-prefixed
+      `8284H9W4YV.group.com.bibliada.shared` entitlement) to App Store Connect
+      via `scripts/release.sh --variant app-store --upload`
+      (`xcodebuild -exportArchive -exportOptionsPlist
+      ExportOptions-app-store.plist ... destination=upload`). Both the
+      "analysis" and "SPI analysis" ingestion stages accepted it
+      ("Upload succeeded"), and TestFlight → macOS Builds shows Build 1 at
+      status **Ready to Submit** — full server-side processing completed with
+      no entitlement rejection. No fallback/migration needed; the
+      Team-ID-prefixed form works unmodified on both channels.
 
 ---
 
@@ -339,7 +382,7 @@ crowded, and on a notched MacBook extras can be pushed off-screen entirely.
       failure mode outright.
 - [ ] Consider opening the Settings window on first launch — a common pattern for
       menu-bar apps, and it helps real users, not just reviewers.
-- [ ] **`VerseCache.swift:17-19` has no fallback guard** — `UserDefaults(suiteName:)`
+- [ ] **`VerseCache.swift:15-17` has no fallback guard** — `UserDefaults(suiteName:)`
       returns a usable object even when the domain is denied, and writes are
       silently dropped. Behaviour differs once sandboxed.
 - [ ] **Submit a build signed with a real Team ID.** Per README, an unsigned
@@ -370,7 +413,7 @@ are likewise accepted.
 **Privacy manifests: out of scope for macOS.** Apple's text — "You need to
 provide this information … on iOS, iPadOS, tvOS, visionOS, and watchOS" —
 excludes macOS from the *required-reason API* rules. Despite UserDefaults usage
-in `VerseCache.swift:17` and `SettingsStore.swift:159`, there is no ITMS-91053
+in `VerseCache.swift:15` and `SettingsStore.swift:157`, there is no ITMS-91053
 risk. A `PrivacyInfo.xcprivacy` is recommended for a clean Xcode privacy report,
 not mandatory; reason codes `1C8F.1` + `CA92.1` if you add one.
 

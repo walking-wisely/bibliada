@@ -411,7 +411,17 @@ make_archive() {
 
   local settings=()
   while IFS= read -r line; do settings+=("$line"); done < <(build_settings)
-  settings+=("CODE_SIGN_IDENTITY=$identity")
+  # Deliberately NOT settings+=("CODE_SIGN_IDENTITY=$identity") here: forcing an
+  # explicit identity on the `archive` action while CODE_SIGN_STYLE=Automatic is
+  # also set makes Xcode treat it as a conflicting manual override ("target is
+  # automatically signed for development, but a conflicting code signing
+  # identity ... has been manually specified") and the archive fails outright.
+  # Any identity that satisfies the entitlements is fine for the archive itself
+  # (Automatic signing picks one on its own); the real distribution identity is
+  # applied afterwards, at export time, via each ExportOptions template's
+  # signingCertificate key (see make_export / the *.plist files). $identity is
+  # kept as a parameter purely so callers document which identity that export
+  # step expects to find in the keychain.
 
   local extra=()
   # -allowProvisioningUpdates lets xcodebuild create/renew the profiles that
@@ -879,10 +889,24 @@ main() {
     release_app_store
   fi
 
-  emit_manifest
+  # `--variant app-store --upload` deliberately produces no local artifact:
+  # release_app_store hands the .pkg straight to App Store Connect and returns
+  # without copying anything into RELEASE_DIR (there's nothing left to notarize
+  # or distribute locally). emit_manifest would otherwise die with "no
+  # distributable artifacts produced" on every such run, even a successful one.
+  if [ "$VARIANT" = "app-store" ] && [ "$DO_UPLOAD" -eq 1 ]; then
+    step "Checksums"
+    log "Skipped: --variant app-store --upload produces no local artifact - the .pkg went straight to App Store Connect."
+  else
+    emit_manifest
+  fi
 
   step "Done"
-  log "Release $VERSION ($BUILD_NUMBER) is in $RELEASE_DIR"
+  if [ "$VARIANT" = "app-store" ] && [ "$DO_UPLOAD" -eq 1 ]; then
+    log "Release $VERSION ($BUILD_NUMBER) uploaded to App Store Connect. Check https://appstoreconnect.apple.com for processing status."
+  else
+    log "Release $VERSION ($BUILD_NUMBER) is in $RELEASE_DIR"
+  fi
   if [ "$SKIP_NOTARIZE" -eq 0 ] && [ "$VARIANT" != "app-store" ]; then
     log "Next: tag the commit (git tag -a v$VERSION -m 'Bibliada $VERSION' && git push --tags) and publish the .dmg + SHA256SUMS."
   fi

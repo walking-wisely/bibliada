@@ -134,7 +134,6 @@ final class SettingsStore {
     static let shared = SettingsStore()
 
     private static let key = "appSettings"
-    private static let suiteName = "group.com.bibliada.shared"
     private static let probeKey = "sharedDomainProbe"
 
     /// Whether the shared domain can actually be written to and read back.
@@ -176,7 +175,7 @@ final class SettingsStore {
     }
 
     private init() {
-        if let shared = UserDefaults(suiteName: Self.suiteName), Self.isUsable(shared) {
+        if let shared = UserDefaults(suiteName: AppGroup.suiteName), Self.isUsable(shared) {
             defaults = shared
             isShared = true
         } else {
