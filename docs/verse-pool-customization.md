@@ -3,12 +3,15 @@ name: verse-pool-customization
 description: Design for user-customizable verse pools with verse-level granularity — the include/exclude range model, the Verses settings tab and its standalone pool editor (reference omnibar, book/chapter/verse browser, full-text search), in-context add/exclude, import/export interchange, and the shuffle-bag selection change small pools force.
 triggers: [verse pool, custom verses, verse selection, pool editor, reference parser, import pool, export pool, shuffle bag, curated references, granularity]
 related: [verse-source, translation-json-schema, settings]
-status: proposed
+status: implemented
 ---
 
 # Verse pool customization
 
-**Status: proposed. Nothing in this document is implemented yet.**
+**Status: built.** All three phases below are implemented on
+`verse-pools-integration`. This document remains the design rationale; see
+[verse-pool-contracts.md](verse-pool-contracts.md) for how the work was split
+and which file owns what.
 
 Today the app draws from `Shared/Resources/curated-references.json` — a fixed
 178-reference pool, identical for every user. This document designs the path to
