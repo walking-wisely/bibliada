@@ -22,6 +22,8 @@ SOURCES=(
   Shared/TranslationCatalog.swift
   Shared/Verse.swift
   Shared/Translation.swift
+  Shared/PoolDocument.swift
+  Shared/PoolTextFormat.swift
 )
 
 WORK="$(mktemp -d)"
