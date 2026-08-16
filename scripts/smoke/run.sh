@@ -7,8 +7,12 @@
 # This is the cheap check for that: it takes a couple of seconds and needs no
 # signing, no simulator, and no App Group.
 #
-# Only files with no AppKit/SwiftUI/App Group dependency can go in SOURCES;
-# anything touching UserDefaults suites or NSWindow belongs in a real build.
+# Only files with no AppKit/SwiftUI dependency can go in SOURCES; anything
+# touching NSWindow belongs in a real build. ShuffleBag.swift and
+# AppGroup.swift are the one exception worth noting: ShuffleBag's I/O
+# (`draw`/`load`/`save`) does touch a UserDefaults suite, but pool-smoke.swift
+# below only calls its pure state-transition half (`advance`/`fingerprint`),
+# so the file is safe to include — the CLI just never exercises the I/O path.
 #
 # Usage: scripts/smoke/run.sh
 set -euo pipefail
@@ -22,6 +26,9 @@ SOURCES=(
   Shared/TranslationCatalog.swift
   Shared/Verse.swift
   Shared/Translation.swift
+  Shared/AppGroup.swift
+  Shared/ShuffleBag.swift
+  Shared/VerseSearch.swift
 )
 
 WORK="$(mktemp -d)"
