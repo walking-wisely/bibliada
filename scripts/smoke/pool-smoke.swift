@@ -107,3 +107,83 @@ do {
     }
     semaphore.wait()
 }
+// MARK: - PoolDocument (.bibliadapool) round trip and validation
+
+// The design doc's own example, byte-checked field by field rather than as a
+// raw string compare (key order isn't part of the contract, just readability).
+let sampleRules = [
+    PoolRule(range: VerseRange(key: "PSA.23")!),
+    PoolRule(range: VerseRange(key: "ROM.8.28-39")!),
+    PoolRule(range: VerseRange(key: "PSA.137")!, isExclusion: true),
+]
+let sampleDoc = PoolDocument(name: "Morning readings", rules: sampleRules, createdWith: "Bibliada 1.2")
+let sampleData = try! sampleDoc.encoded()
+print("bibliadapool sample:\n" + String(data: sampleData, encoding: .utf8)!)
+let roundtrippedDoc = try! PoolDocument.decode(from: sampleData)
+// `PoolRule.id` is deliberately absent from the wire form (see
+// Shared/VersePool.swift) and gets a fresh UUID on every decode, so a
+// roundtrip compares name/createdWith/range-and-exclusion rather than full
+// equality, which would spuriously fail on `id` alone.
+let roundtripMatches = roundtrippedDoc.name == sampleDoc.name
+    && roundtrippedDoc.createdWith == sampleDoc.createdWith
+    && roundtrippedDoc.rules.map { ($0.range.key, $0.isExclusion) }.elementsEqual(sampleDoc.rules.map { ($0.range.key, $0.isExclusion) }, by: ==)
+print("PoolDocument roundtrip ok:", roundtripMatches)
+
+// Forgiving of a hand edit that drops createdWith and adds an unknown key.
+let minimalJSON = """
+{"name": "Hand-edited", "rules": [{"range": "GEN.1.1"}], "notes": "ignored on purpose"}
+""".data(using: .utf8)!
+let minimalDoc = try! PoolDocument.decode(from: minimalJSON)
+print("forgiving decode (no createdWith, extra key):", minimalDoc.name, minimalDoc.createdWith == nil, minimalDoc.rules.map(\.range.key))
+
+// Specific about what it refuses.
+func expectError(_ label: String, _ json: String, _ expected: PoolDocumentError) {
+    do {
+        _ = try PoolDocument.decode(from: json.data(using: .utf8)!)
+        print("FAIL \(label): expected \(expected), decoded without error")
+    } catch let error as PoolDocumentError {
+        print(error == expected ? "ok   \(label) -> \(error)" : "FAIL \(label) -> \(error) (expected \(expected))")
+    } catch {
+        print("FAIL \(label): unexpected error type \(error)")
+    }
+}
+expectError("no name", #"{"rules": [{"range": "GEN.1.1"}]}"#, .missingName)
+expectError("empty name", #"{"name": "", "rules": [{"range": "GEN.1.1"}]}"#, .missingName)
+expectError("no rules key", #"{"name": "X"}"#, .missingRules)
+expectError("empty rules", #"{"name": "X", "rules": []}"#, .noRules)
+// "PSA.999.1" (a chapter no book has) is syntactically well-formed — a range
+// naming something the canon doesn't have is a *validation* question
+// (`VersePoolResolver`/`PoolValidationReport`), not a decode error, and
+// resolves to zero verses rather than failing to parse. What actually fails
+// to decode is a key the string grammar itself rejects: an empty chapter
+// field.
+expectError("bad range", #"{"name": "X", "rules": [{"range": "PSA..1"}]}"#, .invalidRange("PSA..1"))
+expectError("not an object", #"[1, 2, 3]"#, .notAnObject)
+
+// WEB's Textus-Receptus-only gaps (docs/translation-json-schema.md) are
+// exactly where import validation earns its keep: resolving fine against the
+// canon, absent from WEB.
+let webGapRules = ["LUK.17.36", "ACT.8.37", "ACT.15.34", "ACT.24.7"].map { PoolRule(range: VerseRange(key: $0)!) }
+let webGapReport = PoolValidationReport.validate(rules: webGapRules, translationID: "WEB")
+print("WEB gap report: verseCount =", webGapReport.verseCount, "missing =", webGapReport.missingInTranslation.map(\.key).sorted())
+
+// The guardrail: a pool that resolves to nothing must be refused, not saved.
+let emptyReport = PoolValidationReport.validate(rules: [PoolRule(range: VerseRange(key: "PSA.137.1")!, isExclusion: true)], translationID: "WEB")
+print("empty-rules-only-exclusion resolvesToNothing:", emptyReport.resolvesToNothing)
+
+// MARK: - PoolTextFormat round trip
+
+let textInput = """
+- Ps 23
+* Rom 8:28-39
+
+Blurble 3:1
+Jn 3:16
+"""
+let textRead = PoolTextFormat.read(textInput)
+print("text read ranges:", textRead.ranges.map(\.key))
+print("text read failures:", textRead.failures.map { "line \($0.line): \($0.text)" })
+
+let writtenText = PoolTextFormat.write(textRead.ranges, translationID: "WEB")
+let reread = PoolTextFormat.read(writtenText)
+print("text write/reread roundtrip:", reread.ranges.map(\.key) == textRead.ranges.map(\.key), "->", reread.ranges.map(\.key))

@@ -29,6 +29,8 @@ SOURCES=(
   Shared/AppGroup.swift
   Shared/ShuffleBag.swift
   Shared/VerseSearch.swift
+  Shared/PoolDocument.swift
+  Shared/PoolTextFormat.swift
 )
 
 WORK="$(mktemp -d)"
