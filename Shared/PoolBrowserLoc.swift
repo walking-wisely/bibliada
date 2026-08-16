@@ -18,6 +18,10 @@ enum PoolBrowserLoc: String, LocalizedKeySet {
     case browserAddWholeChapter
     case browserExcludeToggle
 
+    // Discovery-section picker (added at integration — see PoolDiscoverySection)
+    case discoveryBrowseTab
+    case discoverySearchTab
+
     // Full-text search
     case searchFieldPlaceholder
     case searchNoResults
@@ -31,6 +35,8 @@ enum PoolBrowserLoc: String, LocalizedKeySet {
     case menuNoPoolsYet
 
     static let table: [PoolBrowserLoc: [AppLanguage: String]] = [
+        .discoveryBrowseTab: [.en: "Browse", .uk: "Огляд"],
+        .discoverySearchTab: [.en: "Search", .uk: "Пошук"],
         .browserBookHeader: [.en: "Book", .uk: "Книга"],
         .browserChapterHeader: [.en: "Chapter", .uk: "Розділ"],
         .browserVerseHeader: [.en: "Verse", .uk: "Вірш"],

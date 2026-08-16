@@ -29,7 +29,7 @@ struct PoolEditorView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     omnibarSection
-                    Self.discoverySection(pool: $pool, translationID: translationID)
+                    Self.discoverySection(pool: $pool, translationID: translationID, language: language)
                     ruleSection
                 }
                 .padding(16)
@@ -182,11 +182,18 @@ struct PoolEditorView: View {
 
     // MARK: - Extension points (see docs/verse-pool-contracts.md)
 
-    /// Filled in by the browser/search track. Track 1 ships this returning
-    /// `EmptyView()`; the editor already lays out space for it.
+    /// The browse-and-search half of the editor, filled in at integration by
+    /// `PoolDiscoverySection`. Shipped as `EmptyView()` while the tracks were
+    /// building in parallel; `language` joined the signature here because the
+    /// two views behind it are localized and a static seam can't reach the
+    /// editor's own copy of it.
     @ViewBuilder
-    static func discoverySection(pool: Binding<VersePool>, translationID: String) -> some View {
-        EmptyView()
+    static func discoverySection(
+        pool: Binding<VersePool>,
+        translationID: String,
+        language: AppLanguage
+    ) -> some View {
+        PoolDiscoverySection(pool: pool, translationID: translationID, language: language)
     }
 
     /// Called by the browser and search surfaces to add what the user

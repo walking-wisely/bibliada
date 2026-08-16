@@ -146,9 +146,13 @@ struct VersesSettingsTab: View {
         controller.show()
     }
 
-    /// Filled in by the import/export track — the Import…/Export… buttons.
+    /// The Import…/Export… buttons, filled in at integration. Shipped as
+    /// `EmptyView()` while the tracks were building in parallel; the real
+    /// implementation lives in `PoolImportExport` because the panels and the
+    /// validation reporting they present belong with the format code, not
+    /// with the pool list.
     @ViewBuilder
     static func interchangeControls(store: VersePoolStore, selection: Binding<UUID?>) -> some View {
-        EmptyView()
+        PoolImportExport.interchangeControls(store: store, selection: selection)
     }
 }
