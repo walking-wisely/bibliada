@@ -9,7 +9,7 @@ import SwiftUI
 /// `NSWindow` instead — see `SettingsWindowController` for why — so `TabBar`
 /// below hand-rolls a matching switcher, driven by this enum, rather than
 /// falling back to `TabView`'s plain-text default.
-private enum SettingsTab: CaseIterable {
+enum SettingsTab: CaseIterable {
     case appearance, sizePosition, verseChanges, general, about
 
     var systemImage: String {
@@ -40,7 +40,15 @@ private enum SettingsTab: CaseIterable {
 struct SettingsView: View {
     private var settingsStore = SettingsStore.shared
 
-    @State private var selectedTab: SettingsTab = .appearance
+    @State private var selectedTab: SettingsTab
+
+    /// Defaults to Appearance for every normal open; `SettingsWindowController`
+    /// passes `.about` instead the very first time the app ever launches, so a
+    /// user who's never seen the app before lands somewhere that explains what
+    /// it is rather than on an empty-feeling settings tab.
+    init(initialTab: SettingsTab = .appearance) {
+        _selectedTab = State(initialValue: initialTab)
+    }
 
     private var language: AppLanguage { settingsStore.settings.language }
 

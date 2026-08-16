@@ -12,16 +12,23 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
     private let statusItem: NSStatusItem
     private let popover: NSPopover
     private let hostingController: NSHostingController<MenuBarContentView>
-    private let settingsWindowController = SettingsWindowController()
+    private let settingsWindowController: SettingsWindowController
 
     /// Fixed width the popover content is laid out at — `sizeThatFits`, below,
     /// measures the height that results from it.
     private static let contentWidth: CGFloat = 288
 
+    /// Set once the very first time the app ever launches — checked and
+    /// flipped in `init` below, ahead of the on-launch Settings prompt, so a
+    /// relaunch never shows it again.
+    private static let hasLaunchedBeforeKey = "hasLaunchedBefore"
+
     override init() {
+        let isFirstLaunch = !UserDefaults.standard.bool(forKey: Self.hasLaunchedBeforeKey)
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         popover = NSPopover()
         hostingController = NSHostingController(rootView: MenuBarContentView(openSettings: {}))
+        settingsWindowController = SettingsWindowController(initialTab: isFirstLaunch ? .about : .appearance)
         super.init()
 
         if let button = statusItem.button {
@@ -42,6 +49,17 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         popover.behavior = .transient
         popover.delegate = self
         popover.contentViewController = hostingController
+
+        // First launch ever: an `LSUIElement` app with no Dock icon and no
+        // window otherwise gives a first-time user nothing to look at beyond
+        // a small menu-bar glyph they have to already know to look for — see
+        // the discovery problem in docs/publishing/CHECKLIST.md §6. Opening
+        // Settings straight to About answers it without waiting for the user
+        // to find the icon on their own.
+        if isFirstLaunch {
+            UserDefaults.standard.set(true, forKey: Self.hasLaunchedBeforeKey)
+            openSettings()
+        }
     }
 
     @objc private func togglePopover(_ sender: Any?) {

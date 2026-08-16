@@ -423,13 +423,19 @@ A reviewer who doesn't know where to look sees an app that launches and does
 nothing → **2.1 App Completeness**. The menu bar on a review machine is usually
 crowded, and on a notched MacBook extras can be pushed off-screen entirely.
 
-- [ ] **App Review notes** stating: this is a menu-bar app with no main window;
+- [x] **App Review notes** stating: this is a menu-bar app with no main window;
       click the book icon at the top-right after launch; to add the widget,
       right-click the desktop → Edit Widgets → Bibliada; the app works fully
       offline. This is a free-text field in App Store Connect and removes the
-      failure mode outright.
-- [ ] Consider opening the Settings window on first launch — a common pattern for
-      menu-bar apps, and it helps real users, not just reviewers.
+      failure mode outright. Drafted and ready to paste in
+      `docs/publishing/store-listing-draft.md` §8.
+- [x] Consider opening the Settings window on first launch — a common pattern for
+      menu-bar apps, and it helps real users, not just reviewers. Implemented:
+      `MenuBarController` checks a `hasLaunchedBefore` flag in
+      `UserDefaults.standard` and, the first time only, opens
+      `SettingsWindowController` straight to the new About tab instead of the
+      default Appearance tab — verified on a clean `defaults delete
+      com.bibliada.Bibliada` launch, and confirmed silent on the next one.
 - [ ] **`VerseCache.swift:16` has no fallback guard** — `UserDefaults(suiteName:)
       ?? .standard` returns a usable object even when the domain is denied, and
       writes are silently dropped. `SettingsStore.swift:200` already added an

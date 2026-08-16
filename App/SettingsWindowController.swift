@@ -35,8 +35,8 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     /// instead of trusting whatever `sender.minSize` reads at drag time.
     private static let minWindowSize = NSSize(width: 300, height: 500)
 
-    convenience init() {
-        let hostingController = NSHostingController(rootView: SettingsView())
+    convenience init(initialTab: SettingsTab = .appearance) {
+        let hostingController = NSHostingController(rootView: SettingsView(initialTab: initialTab))
         // Default sizing options resize the window to match SwiftUI's
         // intrinsic content size on every layout pass, which fights a user
         // drag on the resize edge. `SettingsView`'s own `.frame` already
