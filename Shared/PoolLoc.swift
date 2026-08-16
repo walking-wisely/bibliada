@@ -35,7 +35,6 @@ enum PoolLoc: String, LocalizedKeySet {
     case omnibarParseFailureUnknownBook
     case omnibarParseFailureMalformed
     case omnibarParseFailureOutOfRange
-    case omnibarParseFailuresSummary
 
     // Rule table
     case ruleTableReferenceColumn
@@ -89,7 +88,6 @@ enum PoolLoc: String, LocalizedKeySet {
         .omnibarParseFailureUnknownBook: [.en: "Unrecognized book: “%@”", .uk: "Невідома книга: «%@»"],
         .omnibarParseFailureMalformed: [.en: "Couldn't read: “%@”", .uk: "Не вдалося розпізнати: «%@»"],
         .omnibarParseFailureOutOfRange: [.en: "Out of range: “%@”", .uk: "Поза межами: «%@»"],
-        .omnibarParseFailuresSummary: [.en: "%d of %d references didn't parse", .uk: "%d із %d посилань не розпізнано"],
 
         .ruleTableReferenceColumn: [.en: "Reference", .uk: "Посилання"],
         .ruleTableVersesColumn: [.en: "Verses", .uk: "Вірші"],
