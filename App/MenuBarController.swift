@@ -57,16 +57,17 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         // Settings straight to About answers it without waiting for the user
         // to find the icon on their own.
         //
-        // Deferred a run-loop turn rather than called synchronously here:
-        // this whole initializer runs inside `applicationDidFinishLaunching`,
-        // and calling `NSApp.setActivationPolicy`/`activate()` that early —
-        // before the OS has finished registering the launch with the window
-        // server — was observed to silently no-op. `SettingsWindowController
-        // .show()` still creates the window either way, just left behind
-        // every other app on screen with no way to tell it happened.
+        // Deferred a run-loop turn (plus a short delay) rather than called
+        // synchronously here: this whole initializer runs inside
+        // `applicationDidFinishLaunching`, and calling
+        // `NSApp.setActivationPolicy`/`activate()` that early — before the OS
+        // has finished registering the launch with the window server — was
+        // observed to silently no-op. `SettingsWindowController.show()`
+        // still creates the window either way, just left behind every other
+        // app on screen with no way to tell it happened.
         if isFirstLaunch {
             UserDefaults.standard.set(true, forKey: Self.hasLaunchedBeforeKey)
-            DispatchQueue.main.async { [weak self] in self?.openSettings() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in self?.openSettings() }
         }
     }
 

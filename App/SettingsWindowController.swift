@@ -88,19 +88,28 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         window?.title = SettingsStore.shared.settings.language.t(.settingsWindowTitle)
         // Menu-bar-only (`LSUIElement`) apps run with activation policy
         // `.accessory`, and Sonoma+'s cooperative activation model routinely
-        // *declines* an `.accessory` app's request to become frontmost —
-        // confirmed by reproduction: `NSApp.activate()` +
-        // `makeKeyAndOrderFront`/`orderFrontRegardless` all return normally,
-        // Accessibility shows the window created on screen at the right
-        // position, and it is still left sitting behind whatever else was
-        // frontmost. `.regular` apps get cooperative activation far more
-        // reliably, so this switches policy for as long as the window is open
-        // and back to `.accessory` on close (see `windowWillClose`) — the
-        // Dock icon this briefly adds is a smaller cost than a Settings
-        // window that silently opens behind everything, which is the whole
-        // failure mode `docs/publishing/CHECKLIST.md` §6 warns about.
+        // *declines* an `.accessory` app's request to become frontmost. Fixed
+        // by reproduction, isolating each piece with direct instrumentation
+        // (logged activationPolicy()/isActive values around each call) rather
+        // than guessing:
+        // - `.regular` apps get cooperative activation far more reliably than
+        //   `.accessory` ones, so policy is switched for as long as the
+        //   window is open, reverting to `.accessory` on close (see
+        //   `windowWillClose`) — a brief Dock icon is a smaller cost than a
+        //   Settings window that silently opens behind everything, which is
+        //   the whole failure mode `docs/publishing/CHECKLIST.md` §6 warns
+        //   about.
+        // - `NSApp.activate()` alone was confirmed insufficient even with the
+        //   policy switch: `NSApp.isActive` measured false a full second
+        //   after the call. `NSRunningApplication.current.activate(options:
+        //   [.activateIgnoringOtherApps])` is a genuinely different API
+        //   surface (not just a repeat of `NSApp.activate()`) and is the call
+        //   that actually flips `isActive` to true and brings the app
+        //   frontmost — confirmed via Accessibility (`frontmost` process) and
+        //   a full-screen screenshot, not just return values.
         NSApp.setActivationPolicy(.regular)
         NSApp.activate()
+        NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
         window?.makeKeyAndOrderFront(nil)
         window?.orderFrontRegardless()
     }
