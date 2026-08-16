@@ -143,6 +143,12 @@ struct AppSettings: Codable, Sendable, Equatable {
     /// The language every label, button and menu item in the app is drawn in.
     /// Independent of `translationID` — see `AppLanguage`.
     var language: AppLanguage
+    /// Which verse pool selection draws from, by `VersePool.id`. nil, or an id
+    /// no longer in `VersePoolStore`, means the built-in curated pool — so a
+    /// deleted pool degrades to the default rather than to nothing. Resolve it
+    /// through `VersePoolStore.activePool(settings:)` rather than reading it
+    /// directly. See docs/verse-pool-customization.md.
+    var activePoolID: UUID?
     /// 0...40.
     var cornerRadius: Double
     /// 0.2...1.0.
@@ -204,6 +210,7 @@ struct AppSettings: Codable, Sendable, Equatable {
         showReference: true,
         translationID: BundledTranslations.defaultID,
         language: .systemDefault,
+        activePoolID: nil,
         cornerRadius: 20,
         opacity: 1.0,
         // Locked from the start: the card is meant to sit still and be read, and
