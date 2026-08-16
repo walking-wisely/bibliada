@@ -56,9 +56,17 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         // the discovery problem in docs/publishing/CHECKLIST.md §6. Opening
         // Settings straight to About answers it without waiting for the user
         // to find the icon on their own.
+        //
+        // Deferred a run-loop turn rather than called synchronously here:
+        // this whole initializer runs inside `applicationDidFinishLaunching`,
+        // and calling `NSApp.setActivationPolicy`/`activate()` that early —
+        // before the OS has finished registering the launch with the window
+        // server — was observed to silently no-op. `SettingsWindowController
+        // .show()` still creates the window either way, just left behind
+        // every other app on screen with no way to tell it happened.
         if isFirstLaunch {
             UserDefaults.standard.set(true, forKey: Self.hasLaunchedBeforeKey)
-            openSettings()
+            DispatchQueue.main.async { [weak self] in self?.openSettings() }
         }
     }
 
@@ -73,8 +81,12 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         // and `.transient` dismissal doesn't work on the first outside click,
         // since there's no key window to resign. Activating first — the same
         // fix `SettingsWindowController.show()` needs — makes both behave
-        // normally.
-        NSApp.activate(ignoringOtherApps: true)
+        // normally. `activate()` (no `ignoringOtherApps:`) is the non-deprecated
+        // macOS 14+ replacement; this call site is always in response to a real
+        // click on the status item, so — unlike the auto-opened Settings window
+        // on first launch — cooperative activation reliably grants it without
+        // needing `orderFrontRegardless()` too.
+        NSApp.activate()
         // Measured explicitly and set *before* `show()`, rather than left to
         // `NSHostingController`'s own automatic (but here unreliable —
         // sometimes under, sometimes over) sizing: an under-measurement just

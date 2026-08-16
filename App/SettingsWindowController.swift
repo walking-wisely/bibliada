@@ -86,10 +86,26 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     func show() {
         window?.title = SettingsStore.shared.settings.language.t(.settingsWindowTitle)
-        // Menu-bar-only (`LSUIElement`) apps don't reliably surface ordinary
-        // windows unless the app is first activated — otherwise the window
-        // can open behind other apps or not visibly come forward at all.
-        NSApp.activate(ignoringOtherApps: true)
+        // Menu-bar-only (`LSUIElement`) apps run with activation policy
+        // `.accessory`, and Sonoma+'s cooperative activation model routinely
+        // *declines* an `.accessory` app's request to become frontmost —
+        // confirmed by reproduction: `NSApp.activate()` +
+        // `makeKeyAndOrderFront`/`orderFrontRegardless` all return normally,
+        // Accessibility shows the window created on screen at the right
+        // position, and it is still left sitting behind whatever else was
+        // frontmost. `.regular` apps get cooperative activation far more
+        // reliably, so this switches policy for as long as the window is open
+        // and back to `.accessory` on close (see `windowWillClose`) — the
+        // Dock icon this briefly adds is a smaller cost than a Settings
+        // window that silently opens behind everything, which is the whole
+        // failure mode `docs/publishing/CHECKLIST.md` §6 warns about.
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
+        window?.orderFrontRegardless()
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
     }
 }
