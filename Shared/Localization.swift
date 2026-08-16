@@ -74,6 +74,7 @@ enum Loc: String {
     case tabSizePosition
     case tabVerseChanges
     case tabGeneral
+    case tabAbout
 
     // Appearance tab
     case presets
@@ -134,6 +135,16 @@ enum Loc: String {
 
     // Translation picker
     case allLanguages
+
+    // About tab
+    case aboutTagline
+    case aboutPrivacyPolicy
+    case aboutSupport
+    case aboutSourceCode
+    case aboutAcknowledgementsSectionHeader
+    case aboutNotAffiliated
+    case aboutTranslationsCredit
+    case aboutAcknowledgement
 
     static let table: [Loc: [AppLanguage: String]] = [
         .newVerseNow: [.en: "New verse now", .uk: "Новий вірш зараз"],
@@ -248,5 +259,26 @@ enum Loc: String {
         .switchTranslationKeep: [.en: "Keep current translation", .uk: "Залишити поточний переклад"],
 
         .allLanguages: [.en: "All languages", .uk: "Усі мови"],
+
+        .tabAbout: [.en: "About", .uk: "Про застосунок"],
+        .aboutTagline: [
+            .en: "A quiet daily verse for your Mac menu bar and desktop.",
+            .uk: "Тихий щоденний вірш для рядка меню та робочого столу вашого Mac.",
+        ],
+        .aboutPrivacyPolicy: [.en: "Privacy Policy", .uk: "Політика конфіденційності"],
+        .aboutSupport: [.en: "Support / report an issue", .uk: "Підтримка / повідомити про проблему"],
+        .aboutSourceCode: [.en: "Source code", .uk: "Вихідний код"],
+        .aboutAcknowledgementsSectionHeader: [.en: "Acknowledgements", .uk: "Подяки"],
+        .aboutNotAffiliated: [
+            .en: "Bibliada is not affiliated with or endorsed by Apple Inc. or eBible.org.",
+            .uk: "Bibliada не пов'язана з Apple Inc. чи eBible.org і не схвалена ними.",
+        ],
+        .aboutTranslationsCredit: [
+            .en: "The Bible translations bundled with this app are in the public domain.",
+            .uk: "Переклади Біблії, вбудовані в цей застосунок, є суспільним надбанням.",
+        ],
+        // Kept as the literal English sentence in every language: the LICENSE
+        // requires this exact statement to appear, not a translation of it.
+        .aboutAcknowledgement: [.en: "Jesus is King.", .uk: "Jesus is King."],
     ]
 }

@@ -1,6 +1,9 @@
 # Bibliada — Apple publishing checklist
 
-Compiled 2026-08-01 against the tree at `8fdb7c1`, targeting **both** channels:
+Compiled 2026-08-01 against the tree at `8fdb7c1`; updated 2026-08-16 to
+reflect completed Apple Developer Program enrolment (§0) and the removal of
+the live bible-api.com fetch in favor of three bundled offline translations
+(§4/§6). Targets **both** channels:
 
 - **Developer ID** — signed, notarized, stapled `.dmg` from your own site.
 - **Mac App Store** — uploaded via App Store Connect.
@@ -17,36 +20,13 @@ treated as a hypothesis to test, not a fact.
 
 ---
 
-## 0. Critical path — nothing else can start until this clears
+## 0. Critical path — cleared
 
-- [ ] **Enrol in the Apple Developer Program** ($99/yr). You have no membership,
-      no certificates, and no App Store Connect access today. **This gates every
-      certificate, every App ID, the App Group, and both channels.**
-
-      **As an individual, you pay up front.** Apple splits this by enrolment
-      type: *"Individuals and sole proprietors/single-person businesses can
-      review the license agreement and purchase a membership at the time of
-      enrolment,"* whereas *"Organizations can review the license agreement and
-      purchase a membership once Apple Developer Support verifies the enrolment
-      information."* So the individual order is: submit enrolment → agree to the
-      licence → pay $99 → confirmation email → membership active. Enrolment via
-      the Apple Developer app is an **auto-renewable annual subscription**.
-
-      Expect confirmation within 24 h; past that, contact support with your
-      Enrolment ID. Pay with your **own** credit card — Apple: *"If you're
-      paying by credit card and enrolling as an individual, you must use your
-      own credit card… If you do not, your enrolment will be delayed and you'll
-      be asked for a copy of your government-issued photo identification."*
-
-      Enrol under your **exact legal name** — Apple states that "using an alias,
-      nickname, or company name as your first or last name will cause a delay in
-      the approval of your enrolment." P.O. boxes are not accepted as an address.
-      Apple does not publish per-step timelines; organisation enrolment
-      additionally requires a D-U-N-S number and takes materially longer.
-      Starting it *on* Aug 6 puts the schedule at risk — start it before.
-- [ ] Sign the latest Program License Agreement as Account Holder. No app record
-      can be created until this is signed.
-- [ ] Record your 10-character Team ID → `export BIBLIADA_TEAM_ID=…`
+- [x] **Enrol in the Apple Developer Program** ($99/yr). Membership is active.
+- [x] Sign the latest Program License Agreement as Account Holder.
+- [x] Record your 10-character Team ID → `export BIBLIADA_TEAM_ID=…`. Confirmed
+      real (`8284H9W4YV`) and exercised through both the Developer ID and Mac App
+      Store exports in §1/§2 below.
 
 ---
 
@@ -227,7 +207,11 @@ reviewer may launch the app, see *nothing*, and conclude it is broken.
 none is required by any guideline text:
 
 - Copy verse to clipboard (most utility per hour of work)
-- Grow `verses.json` beyond its current 178 entries — pure data, no new code
+- Grow the curated reference pool beyond its current translation-agnostic set
+  (`Shared/Resources/curated-references.json`) — pure data, no new code. (The
+  old flat `verses.json` of 178 WEB-only entries is gone; each translation's
+  full ~31,000-verse corpus is already bundled, so this is now about widening
+  *which* verses get selected, not adding more raw text.)
 - Export the card as an image via `ImageRenderer`; the view already renders at
   arbitrary sizes, and this doubles as store screenshots
 - Favourites/pinning
@@ -239,73 +223,129 @@ none is required by any guideline text:
 
 Apple does not restrict religious apps. This guideline targets inflammatory
 *commentary* and *inaccurate quotation*. Bibliada ships zero commentary — the
-safest posture available — so the entire exposure is accuracy, and there are
-three real defects:
+safest posture available — so the entire exposure is accuracy.
 
-- [ ] **`BibleAPIResponse.translation_id` is decoded but never checked**; the
-      result is hard-coded to `"WEB"` regardless of what the server returned.
-      This can label non-WEB text as WEB.
+The verse pipeline was rearchitected since this was written (`818a060` onward,
+finished in the `VerseProvider`/`TranslationCatalog` rewrite): there is no
+longer a `bible-api.com` fetch anywhere. All three translations — **WEB**,
+**KJV**, and **Kulish** (Ukrainian, 1871/1903) — are bundled full corpora
+(`Shared/Resources/Translations/*.json`) resolved via a translation-agnostic
+curated reference pool. `VerseProvider.nextVerse` never throws and never talks
+to a server; see `docs/verse-source.md`. That removes the `translation_id`
+mislabeling risk entirely — there is no server response to trust or distrust,
+only a pure in-memory lookup keyed by the caller-selected translation ID — and
+retires the whole §5.2.2 bible-api.com section below (obsolete, kept only for
+history at the bottom of this section).
+
+- [x] ~~`BibleAPIResponse.translation_id` decoded but never checked~~ — moot.
+      `BibleAPIResponse`/the live fetch no longer exist; each translation's text
+      is loaded from its own bundled JSON file, so the displayed `translation`
+      is always the one that was actually resolved.
 - [ ] **`minimumScaleFactor(0.5)` will silently truncate** a long verse in a
       small widget. A verse cut off with no indication *is* misleading
-      quotation. Verify on device.
-- [ ] **Stray unmatched closing quotes** in the catalog (Genesis 28:15,
-      Exodus 14:14) — extraction artifacts. **[unverified]** whether other
-      entries diverge from the WEB source; the full catalog was not diffed.
-
-### 5.2.2 Third-party services — bible-api.com
-
-Its terms permit your use (free, no commercial restriction, no attribution
-required), but state a limit of **15 requests per 30 seconds** and "do not use
-this API to download an entire bible."
-
-- [ ] Your *runtime* usage is fine. The *catalog build* was not:
-      `docs/verse-source.md` records 178 verses fetched "~1.5 s apart" ≈ 20 req/30 s.
-      Regenerate `verses.json` from the upstream `bible_api` / `open-bibles`
-      source data and amend that doc.
-- [ ] Archive dated copies of the bible-api.com terms and the ebible.org
-      copyright page into `docs/publishing/reference/` — 5.2.2 says authorization
-      "must be provided upon request", and the terms are an unversioned paragraph
-      on a hobby site that can change without notice.
-- [ ] Add a circuit breaker: a permanent outage currently means two 8 s timeouts
-      per refresh, forever.
+      quotation. Verify on device — unaffected by the network removal.
+- [x] **Stray unmatched closing quotes** — fixed in `818a060`: corrected in the
+      regenerated catalog and defensively in `VerseProvider.normalize()`, since
+      the artifact could recur on any future re-fetch. **[unverified]** whether
+      the full three-translation corpus (not just the original 178-verse WEB
+      pool) has been diffed for other extraction artifacts, particularly in KJV
+      and Kulish which went through separate conversions — see
+      `docs/translation-json-schema.md` for how each was sourced.
+- [x] ~~Add a circuit breaker for bible-api.com outages~~ — moot, no network
+      call exists to time out. Note `App/Bibliada.entitlements` and
+      `Widget/BibliadaWidget.entitlements` still carry
+      `com.apple.security.network.client`; drop it now that nothing uses it, or
+      the App Privacy questionnaire's "Data Not Collected" answer invites a
+      reviewer to ask why network access is requested at all.
 
 ### Intellectual property
 
-The World English Bible is **confirmed public domain** ("That means that it is
-not copyrighted" — ebible.org), explicitly including commercial use. Two
-obligations attach:
+All three bundled translations are public domain:
+
+- **WEB** — **confirmed public domain** ("That means that it is not
+  copyrighted" — ebible.org), explicitly including commercial use.
+- **KJV** — public domain in the US; carries a dormant, print-only,
+  England-specific Crown copyright that doesn't apply to digital distribution
+  (per `docs/verse-source.md`, sourced in `docs/translation-json-schema.md`).
+- **Kulish** (Kulish–Puluj–Nechuy-Levytsky, 1871/1903) — public domain by age.
+
+Obligations that attach regardless of which translation:
 
 - [ ] **"World English Bible" is a trademark of eBible.org** — keep it out of the
       app name, subtitle, and keywords. Descriptive credit in the description is
-      nominative fair use and fine.
-- [ ] Don't alter the text while still calling it WEB. `normalize()`'s whitespace
-      collapsing is formatting and fine; fix the stray quotes.
-- [ ] `NSHumanReadableCopyright` omits **your own** copyright, and the widget's
-      Info.plist has no copyright key at all.
+      nominative fair use and fine. Extend the same caution to "King James
+      Version"/"KJV" — check for an equivalent live trademark before finalizing
+      store copy.
+- [x] Don't alter the text while still calling it by its translation name.
+      `normalize()`'s whitespace collapsing is formatting and fine; the stray
+      quotes are fixed (see above).
+- [ ] `NSHumanReadableCopyright` in `App/Info.plist` only credits the WEB text
+      (`"Verse text: World English Bible (public domain), via bible-api.com."`)
+      — stale on two counts: it omits **your own** copyright, and it still
+      names bible-api.com after the network path was removed. Update to credit
+      all three translations and drop the bible-api.com mention. The widget's
+      `Info.plist` has no copyright key at all.
 - [ ] **[unverified]** whether "Bibliada" collides with an existing App Store
       name or registered mark. Search before reserving.
+
+### Retired — bible-api.com (kept for history only)
+
+Everything below described the old live-fetch architecture and no longer
+applies to the shipped app; the section is retained so a future reader
+understands why the entitlement/copyright cleanup above exists.
+
+- ~~Runtime usage was within the 15 req/30 s limit; the *catalog build* was
+  not (~20 req/30 s) — fixed by regenerating from source in `818a060`.~~
+- ~~Archive dated copies of the bible-api.com terms and the ebible.org
+  copyright page~~ — no longer a live third-party dependency to protect
+  against; the ebible.org copyright-page archive is still worth keeping for
+  the WEB/attribution record, but bible-api.com's ToS are now irrelevant.
 
 ---
 
 ## 5. Required artifacts — none of these exist today
 
-- [ ] **Privacy policy at a stable public URL.** Guideline 5.1.1 applies to
+- [x] **Privacy policy at a stable public URL.** Guideline 5.1.1 applies to
       *all* apps — "if any" — so collecting nothing is not an exemption. It must
       also be linked **inside the app**; `SettingsView.swift` currently has no
-      `Link`/`openURL` call anywhere.
-- [ ] **Support URL** with a working contact method (Guideline 1.5). A public
-      GitHub repo with Issues open qualifies.
-- [ ] **LICENSE file.** Not an Apple requirement, but without one a public repo
-      is all-rights-reserved by default.
-- [ ] **Acknowledgements panel** (also the natural home for the privacy link),
-      including a non-affiliation line to foreclose any 5.2.1 reading.
-- [ ] **EULA** — for the store, leave Apple's standard LAEULA selected (no work).
+      `Link`/`openURL` call anywhere. Hosted at
+      `https://walking-wisely.github.io/bibliada/privacy-policy.html`
+      (`docs/privacy-policy.html`) and now linked in-app from the new
+      Settings → About tab (`App/SettingsView.swift`'s `AboutSettingsTab`).
+- [x] **Support URL** with a working contact method (Guideline 1.5). A public
+      GitHub repo with Issues open qualifies —
+      `https://github.com/walking-wisely/bibliada/issues`, already linked from
+      `docs/index.html` and now also from Settings → About in-app.
+- [x] **LICENSE file.** Not an Apple requirement, but without one a public repo
+      is all-rights-reserved by default. Added at the repo root, adapted from
+      the `holy-blocker` license (permissive, attribution + "Jesus is King."
+      acknowledgment required in any about page — satisfied by the new About
+      tab).
+- [x] **Acknowledgements panel** (also the natural home for the privacy link),
+      including a non-affiliation line to foreclose any 5.2.1 reading. New
+      Settings → About tab: privacy/support/source links, the non-affiliation
+      line, a public-domain translations credit, and the LICENSE-mandated
+      "Jesus is King." line — fully localized (en/uk) via `Loc`.
+- [x] **EULA** — for the store, leave Apple's standard LAEULA selected (no work).
+      Confirmed as the recommendation in `docs/publishing/store-listing-draft.md`
+      §6 — nothing to draft, just leave Apple's default selected in App Store
+      Connect.
 - [ ] Screenshots: 1–10 at 1280×800 / 1440×900 / 2560×1600 / 2880×1800, 16:10,
-      **no alpha channel**.
+      **no alpha channel**. Not done — needs a human at a real Mac with a
+      running build. Shot list and a `screencapture`/`sips` capture recipe
+      (including alpha-channel stripping) are drafted in
+      `docs/publishing/store-listing-draft.md` §9.
 - [ ] Categories, age rating (answer the religious-content descriptor honestly),
       description, keywords, pricing (free, no IAP — nothing triggers §3).
-- [ ] **EU DSA trader status** — mandatory to declare; apps without it are removed
+      Content drafted and ready to paste in
+      `docs/publishing/store-listing-draft.md` §1–5 (description, keywords,
+      category recommendation, age-rating guidance, pricing confirmation) —
+      still needs to actually be entered into App Store Connect by hand.
+- [x] **EU DSA trader status** — mandatory to declare; apps without it are removed
       from the App Store in the EU. See the privacy note below before answering.
+      **Decided: non-trader** (free hobby app, no commercial activity) — see
+      `docs/publishing/store-listing-draft.md` §7 for the justification and
+      consequence (no EU contact info required on the product page).
 
 ### What becomes public, and how to limit it (store build only)
 
@@ -321,43 +361,51 @@ For individuals the published trader fields are *"Address or P.O. Box, Phone
 number, Email address."* Use a P.O. Box or virtual mailbox and dedicated
 phone/email — your home address never has to appear.
 
-- [ ] Decide trader vs. non-trader. Selecting "not a trader" requires no contact
+- [x] Decide trader vs. non-trader. Selecting "not a trader" requires no contact
       info, but declares to EU consumers that consumer-protection rights don't
       apply to contracts with you. The DSA defines a trader broadly as acting
       "for purposes relating to trade, business, craft or profession" — a free
       hobby app is a plausible non-trader, but this is a legal call, not a
-      technical one.
+      technical one. **Decided: non-trader** — see
+      `docs/publishing/store-listing-draft.md` §7.
 - [ ] **Your legal name will be the public seller name.** Apple: *"If you're an
       individual or sole proprietor/single-person business, your personal legal
       name will be listed as the seller on the App Store."* No alias is
-      permitted. The only alternative is organisation enrolment under a legal
-      entity, which requires a D-U-N-S number and takes materially longer — not
-      viable on a five-day runway.
+      permitted. The only alternative would have been organisation enrolment
+      under a legal entity (D-U-N-S number, materially longer process) — moot
+      now that individual enrolment is already complete (§0).
 
 **None of this applies to the Developer ID channel** — no listing, no trader
 disclosure, no seller name. Your name and Team ID are embedded in the signature
 and readable via `codesign -dvvv`, but nothing is published.
 
 **App Privacy questionnaire: "Data Not Collected"** is truthfully answerable —
-no accounts, no identifiers, no analytics, no third-party SDKs. Any HTTPS request
-does reveal the user's IP to bible-api.com's operator, but that is third-party
-server logging, not developer collection; disclose it in the policy prose rather
-than the questionnaire.
+no accounts, no identifiers, no analytics, no third-party SDKs, and — since the
+bible-api.com fetch was removed — no network requests of any kind. The old
+caveat about bible-api.com seeing the user's IP no longer applies; nothing
+leaves the device.
 
 ---
 
 ## 6. Code quality issues a reviewer would hit
 
-- [ ] **`VerseProvider.swift:30-34` returns a blank card** (`reference: ""`,
-      `text: ""`) if the bundled catalog fails to decode. `bundledRandom()` at
-      `:46` has a John 3:16 fallback; `nextVerse()` doesn't. Mirror it — a blank
-      card in front of a reviewer is a 2.1.
-- [ ] **`BibliadaApp.swift:89` uses `NSApp.activate(ignoringOtherApps: true)`**,
-      deprecated since macOS 14. The comment at `:83-87` claims it is "the
-      reliable combination on macOS 15+"; it isn't — Sonoma moved to cooperative
-      activation and menu-bar apps commonly get the window ordered in but not
-      focused. Use `NSApplication.activate()` +
-      `NSRunningApplication.yieldActivationToApplication(_:)`.
+- [x] **Blank-card fallback** — moot as originally described. The
+      `BibleAPIResponse`/decode-failure path that produced `reference: ""` no
+      longer exists; `VerseProvider.nextVerse` now resolves purely in-memory
+      against the bundled corpora and, per `docs/verse-source.md`, "never
+      throws — there's no failure mode to guard against once there's no
+      network call, only a hardcoded John 3:16 fallback if the bundled files
+      were somehow entirely missing." Worth a quick read of that fallback path
+      to confirm it's still wired the same way after the rewrite, but the
+      original defect (a live-fetch decode failure surfacing a blank card) is
+      gone by construction.
+- [ ] **`NSApp.activate(ignoringOtherApps: true)`**, deprecated since macOS 14,
+      is still used — it moved rather than got fixed in the AppKit-controller
+      rewrite (`ba48631`/`c5d1a75`). Now at
+      `App/MenuBarController.swift:59` and `App/SettingsWindowController.swift:92`.
+      Sonoma moved to cooperative activation and menu-bar apps commonly get the
+      window ordered in but not focused. Use `NSApplication.activate()` +
+      `NSRunningApplication.yieldActivationToApplication(_:)` in both spots.
 
       This compounds the discovery problem below: a reviewer who finds the menu
       bar icon, clicks **Settings…**, and gets a window that opens behind
@@ -382,15 +430,17 @@ crowded, and on a notched MacBook extras can be pushed off-screen entirely.
       failure mode outright.
 - [ ] Consider opening the Settings window on first launch — a common pattern for
       menu-bar apps, and it helps real users, not just reviewers.
-- [ ] **`VerseCache.swift:15-17` has no fallback guard** — `UserDefaults(suiteName:)`
-      returns a usable object even when the domain is denied, and writes are
-      silently dropped. Behaviour differs once sandboxed.
-- [ ] **Submit a build signed with a real Team ID.** Per README, an unsigned
-      build makes the widget render its own defaults and ignore every setting —
-      a reviewer would file that as a functional bug.
-- [ ] Verify TLS once: `nscurl --ats-diagnostics --verbose https://bible-api.com/John%203:16`.
-      If it fails, fix the request — do **not** add an ATS exception, which turns
-      a clean submission into one needing written justification.
+- [ ] **`VerseCache.swift:16` has no fallback guard** — `UserDefaults(suiteName:)
+      ?? .standard` returns a usable object even when the domain is denied, and
+      writes are silently dropped. `SettingsStore.swift:200` already added an
+      `isUsable` check for the same problem; mirror it in `VerseCache`.
+      Behaviour differs once sandboxed.
+- [x] **Submit a build signed with a real Team ID.** No longer a blocker — real
+      Team ID (`8284H9W4YV`) is enrolled and exercised through both export
+      pipelines (§0–§2). Still worth a final on-device check that the widget
+      reads live settings rather than its own defaults before submission.
+- [x] ~~Verify TLS once: `nscurl --ats-diagnostics ... bible-api.com`~~ — moot,
+      no network call exists anymore to run TLS diagnostics against.
 
 ### Confirmed clean
 
@@ -398,8 +448,10 @@ No private or undocumented API anywhere — zero matches for `@_silgen_name`,
 `dlopen`, `NSSelectorFromString`, `SkyLight`, `CGSPrivate`, `AXUIElement`. The
 desktop overlay, the likeliest place for window-server hacks, uses only public
 `CGWindowLevelForKey(.desktopIconWindow)` (`OverlayWindowController.swift:91`).
-HTTPS only, no ATS exceptions, no deprecated API beyond the activation call
-above, no TODOs, no `print`/`NSLog`, no third-party SDKs.
+No network calls at all (the bible-api.com fetch was removed), no ATS
+exceptions, no deprecated API beyond the activation call above, no TODOs, no
+`print`/`NSLog`, no third-party SDKs. The `com.apple.security.network.client`
+entitlement is now vestigial — see the §4 note above.
 
 **The sandbox question that mattered most is a pass:** desktop-level overlay
 windows are fine under App Sandbox. No entitlement governs window levels or
@@ -421,71 +473,59 @@ not mandatory; reason codes `1C8F.1` + `CA92.1` if you add one.
 
 ## 7. Sequence
 
-Enrolment is deliberately **not** happening before Aug 6. Both channels are
-gated behind it — a Developer ID certificate requires the paid membership just as
-the store does; a free Apple ID only yields personal-team development
-certificates, which cannot be notarized. So nothing ships before Aug 6, and the
-work below is split by what the membership actually gates.
+Enrolment (§0) is done and both build pipelines (§1, §2) are verified working
+end to end with a real Team ID. Nothing below is gated on membership anymore —
+what remains is paperwork, a handful of code fixes, and the actual submissions.
 
-### Decisions to settle first (no membership required)
+### Decisions still open
 
-1. **App Group form** (§3). Recommended: `$(TeamIdentifierPrefix)group.com.bibliada.shared`
-   — the only form valid on both channels without a provisioning profile.
-   Changing it after release orphans users' settings.
-2. **Sandbox the Developer ID build too?** Not required. Recommended yes, so both
+1. **Trader vs non-trader** for the EU, and whether to obtain a P.O. Box for the
+   publicly displayed address (§5).
+2. **Which 4.2 hedges, if any** (§4). Genuinely optional — no guideline text
+   requires them.
+3. **Sandbox the Developer ID build too?** Not required. Recommended yes, so both
    channels behave identically and a store rejection can't surprise you with
    behaviour the direct build never exercised.
-3. **Trader vs non-trader** for the EU, and whether to obtain a P.O. Box for the
-   publicly displayed address (§5).
-4. **Which 4.2 hedges, if any** (§4). Genuinely optional — no guideline text
-   requires them.
 
-### Before Aug 6 — needs no membership
+### Remaining work, highest value first
 
-Blocking, highest value first:
+- **Privacy policy and support URL** — done. `docs/index.html` /
+  `docs/privacy-policy.html` are hosted on GitHub Pages, and Settings → About
+  (`App/SettingsView.swift`) now links both in-app, satisfying Guideline
+  5.1.1's in-app-link requirement.
+- **LICENSE file** — done, added at the repo root.
+- **Acknowledgements panel** with the non-affiliation line — done, same
+  Settings → About tab; also carries the LICENSE-mandated "Jesus is King."
+  line and a translations credit.
+- **Draft App Review notes** (§4/§6): done, ready to paste from
+  `docs/publishing/store-listing-draft.md` §8.
+- **Name/trademark check on "Bibliada"** before reserving it in App Store
+  Connect, plus the "World English Bible" / "King James Version" trademark
+  caution in store copy (§4). Still open — store-copy drafts in
+  `store-listing-draft.md` already avoid the trademarked full names, but the
+  name-collision search itself hasn't been done.
+- **`NSHumanReadableCopyright`** in `App/Info.plist` — stale (still credits
+  only WEB via bible-api.com); add the widget's missing copyright key too (§4).
+- **Store listing assets**: description, keywords, category, and age-rating
+  guidance drafted in `docs/publishing/store-listing-draft.md` (§1–4) — still
+  needs to be entered into App Store Connect. Screenshots remain undone;
+  §9 of the same file has the shot list and capture recipe for whenever
+  someone is at a real Mac with the app running.
 
-- **Regenerate `verses.json` from upstream `bible_api` / `open-bibles` source
-  data.** Fixes three findings at once: the ToS rate-limit problem in how the
-  catalogue was built, the stray unmatched quotes (a real 1.1.5 accuracy issue),
-  and the 178-verse thinness behind the 4.2 concern.
-- **App icon, all ten PNG sizes** — hard upload failure without it, and the item
-  most likely to stall because it needs design work rather than code.
-- **`App/Info.plist`:** `LSApplicationCategoryType` + `ITSAppUsesNonExemptEncryption`.
-- **Privacy policy and support URL, hosted and live** — hosting has its own lead
-  time, and both must resolve before submission.
-
-Code fixes (§6): blank-card fallback, cooperative activation, `translation_id`
-check, small-widget truncation test, `VerseCache` guard, Settings-on-first-launch.
-
-Build restructuring (§1, §2) — writable now, *testable* only once certificates
-exist: scope `CODE_SIGN_IDENTITY: "-"` to Debug, add the `ReleaseMAS` config and
-the four entitlements variants, switch the App Group identifier, make `build.sh`'s
-release path hard-fail instead of silently building unsigned.
-
-Paperwork: LICENSE, acknowledgements panel with the non-affiliation line, archived
-copies of the bible-api.com terms and ebible.org copyright page, draft App Review
-notes, and a name/trademark check on "Bibliada" before reserving it.
-
-> **Testing limitation:** local ad-hoc builds work fine, so every code fix above
-> is verifiable now. The exception is **App Group settings sharing** — the
-> entitlement cannot be granted without a real team, so the widget will keep
-> showing its own defaults until enrolment. That is expected, not a regression.
-
-### Aug 6, day 1 — enrol
-
-Individual enrolment: agree to the licence, pay $99 with your own card,
-confirmation within 24 h (§0). Then certificates, App IDs, App Group registration,
-`export BIBLIADA_TEAM_ID`, and `./scripts/release.sh --skip-notarize` as a dry run
-— full build and all signature checks with zero Apple round trips.
+Code fixes (§6): cooperative activation in `MenuBarController` and
+`SettingsWindowController`, `VerseCache` fallback guard, small-widget
+truncation test, Settings-on-first-launch, drop the now-unused
+`com.apple.security.network.client` entitlement.
 
 ### Then — Developer ID first
 
 Fewer blockers and no reviewer judgment: the notarization service either accepts
 the signature or it doesn't. That yields a real distributable while store work
-continues. Store readiness (sandboxed variants, icon in place, hosted URLs,
-review notes) follows, then the first upload — budget for a second cycle, since
-the first upload usually surfaces something. Notarization is fast (1–15 min per
-submission, ~5–20 min per release for the two round trips); App Review is days.
+continues. Store readiness (icon in place — done; hosted URLs — done; in-app
+privacy link, acknowledgements panel, review notes — still open) follows, then
+the first upload — budget for a second cycle, since the first upload usually
+surfaces something. Notarization is fast (1–15 min per submission, ~5–20 min
+per release for the two round trips); App Review is days.
 
 ---
 
@@ -501,5 +541,6 @@ submission, ~5–20 min per release for the two round trips); App Review is days
 - `.github/workflows/release.yml` — the same on a macOS runner. The `app-store`
   job is gated behind `if: false` until §2 is resolved.
 
-Still to archive locally: the bible-api.com terms of use and the ebible.org
-copyright page (§4).
+Still to archive locally: the ebible.org copyright page, for the WEB
+attribution record (§4). The bible-api.com terms of use no longer need
+archiving — that dependency was removed; see the "Retired" note in §4.

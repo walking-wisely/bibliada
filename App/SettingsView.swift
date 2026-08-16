@@ -10,7 +10,7 @@ import SwiftUI
 /// below hand-rolls a matching switcher, driven by this enum, rather than
 /// falling back to `TabView`'s plain-text default.
 private enum SettingsTab: CaseIterable {
-    case appearance, sizePosition, verseChanges, general
+    case appearance, sizePosition, verseChanges, general, about
 
     var systemImage: String {
         switch self {
@@ -18,6 +18,7 @@ private enum SettingsTab: CaseIterable {
         case .sizePosition: return "aspectratio"
         case .verseChanges: return "clock.arrow.circlepath"
         case .general: return "gearshape"
+        case .about: return "info.circle"
         }
     }
 
@@ -27,6 +28,7 @@ private enum SettingsTab: CaseIterable {
         case .sizePosition: return language.t(.tabSizePosition)
         case .verseChanges: return language.t(.tabVerseChanges)
         case .general: return language.t(.tabGeneral)
+        case .about: return language.t(.tabAbout)
         }
     }
 }
@@ -67,6 +69,7 @@ struct SettingsView: View {
         case .sizePosition: SizePositionSettingsTab(settings: settingsBinding)
         case .verseChanges: UpdatesSettingsTab(settings: settingsBinding)
         case .general: GeneralSettingsTab(settings: settingsBinding)
+        case .about: AboutSettingsTab(language: language)
         }
     }
 
@@ -1322,5 +1325,49 @@ private struct GeneralSettingsTab: View {
               let match = BundledTranslations.firstMeta(languageCode: newLanguage.translationLanguageCode)
         else { return }
         suggestedTranslation = match
+    }
+}
+
+// MARK: - About
+
+private struct AboutSettingsTab: View {
+    let language: AppLanguage
+
+    var body: some View {
+        Form {
+            Section {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Bibliada")
+                        .font(.title3.weight(.semibold))
+                    Text(language.t(.aboutTagline))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
+            }
+
+            Section {
+                Link(language.t(.aboutPrivacyPolicy), destination: URL(string: "https://walking-wisely.github.io/bibliada/privacy-policy.html")!)
+                Link(language.t(.aboutSupport), destination: URL(string: "https://github.com/walking-wisely/bibliada/issues")!)
+                Link(language.t(.aboutSourceCode), destination: URL(string: "https://github.com/walking-wisely/bibliada")!)
+            }
+
+            Section {
+                Text(language.t(.aboutNotAffiliated))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(language.t(.aboutTranslationsCredit))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text(language.t(.aboutAcknowledgementsSectionHeader))
+            }
+
+            Section {
+                Text(language.t(.aboutAcknowledgement))
+                    .font(.callout.weight(.medium))
+            }
+        }
+        .formStyle(.grouped)
     }
 }
