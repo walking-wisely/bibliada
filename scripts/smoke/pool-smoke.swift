@@ -40,3 +40,70 @@ print("resolve psalms-minus-137-plus-1 ->", VersePoolResolver.count(rules: rules
 let enc = try! JSONEncoder().encode(rules)
 print("wire:", String(data: enc, encoding: .utf8)!)
 print("roundtrip:", (try! JSONDecoder().decode([PoolRule].self, from: enc)).map(\.range.key))
+
+// Shuffle bag: exhausts a small pool before any reference repeats, then
+// reshuffles once exhausted, and resets when the resolved set changes even
+// under the same pool id (a rule edit, not just a pool switch).
+do {
+    let refs = (1...5).map { VerseReference(book: "PSA", chapter: 23, verse: $0) }
+    let pool = VersePool(name: "Shuffle test", rules: [PoolRule(range: VerseRange(key: "PSA.23.1-5")!)])
+
+    var state: ShuffleBagState?
+    var drawn: [String] = []
+    for _ in 0..<5 {
+        guard let (reference, next) = ShuffleBag.advance(state, pool: pool, resolved: refs) else {
+            print("FAIL shuffle bag: advance returned nil mid-pass")
+            break
+        }
+        drawn.append(reference.key)
+        state = next
+    }
+    let allFiveSeen = Set(drawn) == Set(refs.map(\.key))
+    print(allFiveSeen ? "ok   shuffle bag dealt all 5 references with no repeat" : "FAIL shuffle bag pass 1 -> \(drawn)")
+
+    // The bag is now empty; the next draw must reshuffle rather than fail.
+    if let (reference, reshuffled) = ShuffleBag.advance(state, pool: pool, resolved: refs) {
+        print("ok   shuffle bag reshuffled after exhausting -> drew \(reference.key), \(reshuffled.remaining.count) left")
+        state = reshuffled
+    } else {
+        print("FAIL shuffle bag: did not reshuffle after exhausting")
+    }
+
+    // Same pool id, different resolved contents (as if a rule changed):
+    // the fingerprint must differ, so the bag rebuilds around the new set
+    // instead of carrying over keys that may no longer even be in the pool.
+    let editedRefs = Array(refs.prefix(2))
+    if let (reference, resetState) = ShuffleBag.advance(state, pool: pool, resolved: editedRefs) {
+        let expectedRemaining = editedRefs.count - 1
+        print(
+            resetState.remaining.count == expectedRemaining && editedRefs.map(\.key).contains(reference.key)
+                ? "ok   shuffle bag reset when rules changed under the same pool id"
+                : "FAIL shuffle bag did not reset on rule change -> remaining \(resetState.remaining)"
+        )
+    } else {
+        print("FAIL shuffle bag: advance returned nil after rule change")
+    }
+}
+
+// Full-text search: offline, case/diacritic-insensitive, results in
+// canonical book/chapter/verse order.
+do {
+    let semaphore = DispatchSemaphore(value: 0)
+    Task {
+        // "Fear not" is KJV phrasing; WEB says "don't be afraid" for the same
+        // verses, so this checks WEB's own wording (and, via the all-caps
+        // query, that matching is case-insensitive).
+        let hits = await VerseSearch.shared.search("DON’T BE AFRAID", translationID: "WEB")
+        print(hits.isEmpty ? "FAIL search \"DON’T BE AFRAID\" -> no hits" : "ok   search \"DON’T BE AFRAID\" -> \(hits.count) hits")
+
+        let references = hits.map(\.reference)
+        let inOrder = references == references.sorted(by: VersePoolResolver.canonicalOrder)
+        print(inOrder ? "ok   search results are in canonical order" : "FAIL search results out of canonical order")
+
+        let empty = await VerseSearch.shared.search("   ", translationID: "WEB")
+        print(empty.isEmpty ? "ok   blank query returns no hits" : "FAIL blank query returned \(empty.count) hits")
+
+        semaphore.signal()
+    }
+    semaphore.wait()
+}
