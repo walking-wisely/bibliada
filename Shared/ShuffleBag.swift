@@ -83,8 +83,33 @@ enum ShuffleBag {
 
     private static let key = "versePoolShuffleBag.v1"
 
+    private static let probeKey = "shuffleBagDomainProbe"
+
+    /// Mirrors `VerseCache.isUsable` and `SettingsStore.isUsable` — see the
+    /// long note on either for why `UserDefaults(suiteName:)` returning an
+    /// object proves nothing and a round trip is the only honest test.
+    ///
+    /// The bag needs this more than the other two do, because here a dropped
+    /// write fails *silently rather than visibly*. Settings falling back to
+    /// local defaults is something the user can see; a bag whose `save` goes
+    /// nowhere reloads as nil on every draw, reshuffles every time, and
+    /// degenerates into exactly the plain randomness it exists to replace —
+    /// while still looking, from the outside, like a working shuffle bag.
+    /// Unsigned local builds have no App Group at all (see README.md), so
+    /// this is the common case during development, not an edge one.
+    private static func isUsable(_ defaults: UserDefaults) -> Bool {
+        let token = UUID().uuidString
+        defaults.set(token, forKey: probeKey)
+        let readBack = defaults.string(forKey: probeKey)
+        defaults.removeObject(forKey: probeKey)
+        return readBack == token
+    }
+
     private static var defaults: UserDefaults {
-        UserDefaults(suiteName: AppGroup.suiteName) ?? .standard
+        if let shared = UserDefaults(suiteName: AppGroup.suiteName), isUsable(shared) {
+            return shared
+        }
+        return .standard
     }
 
     /// Draws the next reference for `pool`, persisting the resulting bag
