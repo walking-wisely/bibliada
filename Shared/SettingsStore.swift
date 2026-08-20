@@ -33,6 +33,7 @@ private struct StoredSettings: Codable {
     var showReference: Bool
     var translationID: String
     var language: AppLanguage
+    var activePoolID: UUID?
     var cornerRadius: Double
     var opacity: Double
     var positionLocked: Bool
@@ -64,6 +65,9 @@ private struct StoredSettings: Codable {
         }
         // Added when the language switch shipped: absent in older blobs.
         language = try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .systemDefault
+        // Added when verse pools shipped: absent in older blobs, and nil means
+        // the built-in curated pool, which is what those users were already on.
+        activePoolID = try container.decodeIfPresent(UUID.self, forKey: .activePoolID)
         cornerRadius = try container.decode(Double.self, forKey: .cornerRadius)
         opacity = try container.decode(Double.self, forKey: .opacity)
         // Added after `clickThrough` was retired, so it's absent in older blobs.
@@ -97,6 +101,7 @@ private struct StoredSettings: Codable {
         try container.encode(showReference, forKey: .showReference)
         try container.encode(translationID, forKey: .translationID)
         try container.encode(language, forKey: .language)
+        try container.encodeIfPresent(activePoolID, forKey: .activePoolID)
         try container.encode(cornerRadius, forKey: .cornerRadius)
         try container.encode(opacity, forKey: .opacity)
         try container.encode(positionLocked, forKey: .positionLocked)
@@ -105,7 +110,7 @@ private struct StoredSettings: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case theme, refreshMinutes, font, overlayEnabled, overlayFrame
-        case fontScale, showReference, translationID, language, cornerRadius, opacity, positionLocked, clickThrough
+        case fontScale, showReference, translationID, language, activePoolID, cornerRadius, opacity, positionLocked, clickThrough
         /// Legacy keys, decoded but never written.
         case frequency, enabledTranslationIDs
     }
@@ -120,6 +125,7 @@ private struct StoredSettings: Codable {
         showReference = settings.showReference
         translationID = settings.translationID
         language = settings.language
+        activePoolID = settings.activePoolID
         cornerRadius = settings.cornerRadius
         opacity = settings.opacity
         positionLocked = settings.positionLocked
@@ -137,6 +143,7 @@ private struct StoredSettings: Codable {
             showReference: showReference,
             translationID: translationID,
             language: language,
+            activePoolID: activePoolID,
             cornerRadius: cornerRadius,
             opacity: opacity,
             positionLocked: positionLocked,

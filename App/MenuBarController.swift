@@ -115,6 +115,7 @@ private struct MenuBarContentView: View {
 
     private var appState = AppState.shared
     private var settingsStore = SettingsStore.shared
+    private var poolStore = VersePoolStore.shared
 
     // The synthesized memberwise init would be `private` here (it touches the
     // `private` `appState`/`settingsStore` properties), which even within
@@ -146,6 +147,14 @@ private struct MenuBarContentView: View {
 
             Divider()
 
+            addToPoolMenu
+            Button(language.t(PoolBrowserLoc.menuExcludeThisVerse)) {
+                excludeCurrentVerse()
+            }
+            .disabled(excludeTargetPool == nil)
+
+            Divider()
+
             Button(language.t(.settingsEllipsis)) {
                 openSettings()
             }
@@ -169,5 +178,51 @@ private struct MenuBarContentView: View {
                 settingsStore.settings = updated
             }
         )
+    }
+
+    /// "Add current verse to ▸ [pool]" — one item per user-created pool. The
+    /// built-in curated pool never appears here: `VersePoolStore.append` is a
+    /// no-op for it (see `VersePoolStore.update`), so offering it would
+    /// silently do nothing.
+    @ViewBuilder
+    private var addToPoolMenu: some View {
+        Menu(language.t(PoolBrowserLoc.menuAddCurrentVerseTo)) {
+            if poolStore.pools.isEmpty {
+                Text(language.t(PoolBrowserLoc.menuNoPoolsYet))
+            } else {
+                ForEach(poolStore.pools) { pool in
+                    Button(pool.name) {
+                        addCurrentVerse(toPoolWithID: pool.id)
+                    }
+                }
+            }
+        }
+    }
+
+    /// The pool "Exclude this verse" writes into: the active pool, but only
+    /// when it's user-created — the curated one can be active with no pool
+    /// selected yet, and it can't be mutated, so the item disables instead of
+    /// silently doing nothing.
+    private var excludeTargetPool: VersePool? {
+        let pool = poolStore.activePool(settings: settingsStore.settings)
+        return pool.isBuiltIn ? nil : pool
+    }
+
+    /// `appState.verse.reference` is a display string ("John 3:16"), not a
+    /// canonical `VerseReference` — reparsing it through `ReferenceParser`
+    /// reuses the one parser that already knows every bundled translation's
+    /// book names, rather than teaching this view its own book-name lookup.
+    private func currentRange() -> VerseRange? {
+        ReferenceParser.parseOne(appState.verse.reference)
+    }
+
+    private func addCurrentVerse(toPoolWithID id: UUID) {
+        guard let range = currentRange() else { return }
+        poolStore.append(rule: PoolRule(range: range), toPoolWithID: id)
+    }
+
+    private func excludeCurrentVerse() {
+        guard let pool = excludeTargetPool, let range = currentRange() else { return }
+        poolStore.append(rule: PoolRule(range: range, isExclusion: true), toPoolWithID: pool.id)
     }
 }

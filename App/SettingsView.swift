@@ -10,12 +10,16 @@ import SwiftUI
 /// below hand-rolls a matching switcher, driven by this enum, rather than
 /// falling back to `TabView`'s plain-text default.
 enum SettingsTab: CaseIterable {
-    case appearance, sizePosition, verseChanges, general, about
+    // `verses` sits between `sizePosition` and `verseChanges` — "between
+    // Appearance and Verse changes" per docs/verse-pool-customization.md —
+    // rather than displacing the tabs already there.
+    case appearance, sizePosition, verses, verseChanges, general, about
 
     var systemImage: String {
         switch self {
         case .appearance: return "paintpalette"
         case .sizePosition: return "aspectratio"
+        case .verses: return "book.closed"
         case .verseChanges: return "clock.arrow.circlepath"
         case .general: return "gearshape"
         case .about: return "info.circle"
@@ -26,6 +30,7 @@ enum SettingsTab: CaseIterable {
         switch self {
         case .appearance: return language.t(.tabAppearance)
         case .sizePosition: return language.t(.tabSizePosition)
+        case .verses: return language.t(PoolLoc.tabVerses)
         case .verseChanges: return language.t(.tabVerseChanges)
         case .general: return language.t(.tabGeneral)
         case .about: return language.t(.tabAbout)
@@ -75,6 +80,7 @@ struct SettingsView: View {
         switch selectedTab {
         case .appearance: AppearanceSettingsTab(settings: settingsBinding)
         case .sizePosition: SizePositionSettingsTab(settings: settingsBinding)
+        case .verses: VersesSettingsTab(settings: settingsBinding)
         case .verseChanges: UpdatesSettingsTab(settings: settingsBinding)
         case .general: GeneralSettingsTab(settings: settingsBinding)
         case .about: AboutSettingsTab(language: language)

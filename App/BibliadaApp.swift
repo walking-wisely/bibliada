@@ -42,4 +42,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         menuBarController = MenuBarController()
     }
+
+    /// A double-click on a `.bibliadapool` file, a Dock-icon drop, or an
+    /// "Open With ▸ Bibliada" — the payoff of `App/Info.plist`'s
+    /// `CFBundleDocumentTypes` registration. Forwarded straight to
+    /// `PoolImportExport`, which owns the whole import/validate/report path;
+    /// this hook only exists because AppKit has to deliver the URLs
+    /// somewhere, and the delegate is that somewhere.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        PoolImportExport.handleOpen(urls: urls, store: VersePoolStore.shared, settings: SettingsStore.shared)
+    }
 }
